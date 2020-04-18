@@ -1,0 +1,902 @@
+package DynamicProgramming;
+
+/**
+ * @author Varun Upadhyay (https://github.com/varunu28)
+ */
+public class CoinChange {
+
+    // Driver Program
+    public static void main(String[] args) {
+
+        int amount = 12;
+        int[] coins = {2, 4, 5};
+
+        System.out.println("Number of combinations of getting change for " + amount + " is: " + change(coins, amount));
+        System.out.println("Minimum number of coins required for amount :" + amount + " is: " + minimumCoins(coins, amount));
+
+    }
+
+    /**
+     * This method finds the number of combinations of getting change for a given amount and change coins
+     *
+     * @param coins  The list of coins
+     * @param amount The amount for which we need to find the change
+     *               Finds the number of combinations of change
+     **/
+    public static int change(int[] coins, int amount) {
+
+        int[] combinations = new int[amount + 1];
+        combinations[0] = 1;
+
+        for (int coin : coins) {
+            for (int i = coin; i < amount + 1; i++) {
+                combinations[i] += combinations[i - coin];
+            }
+            // Uncomment the below line to see the state of combinations for each coin
+            // printAmount(combinations);
+        }
+
+        return combinations[amount];
+    }
+
+    /**
+     * This method finds the minimum number of coins needed for a given amount.
+     *
+     * @param coins  The list of coins
+     * @param amount The amount for which we need to find the minimum number of coins.
+     *               Finds the the minimum number of coins that make a given value.
+     **/
+    public static int minimumCoins(int[] coins, int amount) {
+        //minimumCoins[i] will store the minimum coins needed for amount i
+        int[] minimumCoins = new int[amount + 1];
+
+        minimumCoins[0] = 0;
+
+        for (int i = 1; i <= amount; i++) {
+            minimumCoins[i] = Integer.MAX_VALUE;
+        }
+        for (int i = 1; i <= amount; i++) {
+            for (int coin : coins) {
+                if (coin <= i) {
+                    int sub_res = minimumCoins[i - coin];
+                    if (sub_res != Integer.MAX_VALUE && sub_res + 1 < minimumCoins[i])
+                        minimumCoins[i] = sub_res + 1;
+                }
+            }
+        }
+        // Uncomment the below line to see the state of combinations for each coin
+        //printAmount(minimumCoins);
+        return minimumCoins[amount];
+    }
+
+    // A basic print method which prints all the contents of the array
+    public static void printAmount(int[] arr) {
+        for (int i = 0; i < arr.length; i++) {
+            System.out.print(arr[i] + " ");
+        }
+        System.out.println();
+    }
+}
+package DynamicProgramming;
+
+/**
+ * A DynamicProgramming based solution for Edit Distance problem In Java
+ * Description of Edit Distance with an Example:
+ * <p>
+ * Edit distance is a way of quantifying how dissimilar two strings (e.g., words) are to one another,
+ * by counting the minimum number of operations required to transform one string into the other. The
+ * distance operations are the removal, insertion, or substitution of a character in the string.
+ * <p>
+ * <p>
+ * The Distance between "kitten" and "sitting" is 3. A minimal edit script that transforms the former into the latter is:
+ * <p>
+ * kitten ¡ú sitten (substitution of "s" for "k")
+ * sitten ¡ú sittin (substitution of "i" for "e")
+ * sittin ¡ú sitting (insertion of "g" at the end).
+ *
+ * @author SUBHAM SANGHAI
+ **/
+
+import java.util.Scanner;
+
+public class EditDistance {
+
+    public static int minDistance(String word1, String word2) {
+        int len1 = word1.length();
+        int len2 = word2.length();
+        // len1+1, len2+1, because finally return dp[len1][len2]
+        int[][] dp = new int[len1 + 1][len2 + 1];
+     	/* If second string is empty, the only option is to
+   	  insert all characters of first string into second*/
+        for (int i = 0; i <= len1; i++) {
+            dp[i][0] = i;
+        }
+     	/* If first string is empty, the only option is to
+   	  insert all characters of second string into first*/
+        for (int j = 0; j <= len2; j++) {
+            dp[0][j] = j;
+        }
+        //iterate though, and check last char
+        for (int i = 0; i < len1; i++) {
+            char c1 = word1.charAt(i);
+            for (int j = 0; j < len2; j++) {
+                char c2 = word2.charAt(j);
+                //if last two chars equal
+                if (c1 == c2) {
+                    //update dp value for +1 length
+                    dp[i + 1][j + 1] = dp[i][j];
+                } else {
+			/* if two characters are different ,
+			then take the minimum of the various operations(i.e insertion,removal,substitution)*/
+                    int replace = dp[i][j] + 1;
+                    int insert = dp[i][j + 1] + 1;
+                    int delete = dp[i + 1][j] + 1;
+
+                    int min = replace > insert ? insert : replace;
+                    min = delete > min ? min : delete;
+                    dp[i + 1][j + 1] = min;
+                }
+            }
+        }
+        /* return the final answer , after traversing through both the strings*/
+        return dp[len1][len2];
+    }
+
+
+    public static void main(String[] args) {
+        Scanner input = new Scanner(System.in);
+        String s1, s2;
+        System.out.println("Enter the First String");
+        s1 = input.nextLine();
+        System.out.println("Enter the Second String");
+        s2 = input.nextLine();
+        //ans stores the final Edit Distance between the two strings
+        int ans = minDistance(s1, s2);
+        System.out.println("The minimum Edit Distance between \"" + s1 + "\" and \"" + s2 + "\" is " + ans);
+        input.close();
+    }
+}
+
+package DynamicProgramming;
+
+/**
+ * DynamicProgramming solution for the Egg Dropping Puzzle
+ */
+public class EggDropping {
+
+    // min trials with n eggs and m floors 
+
+    private static int minTrials(int n, int m) {
+
+        int[][] eggFloor = new int[n + 1][m + 1];
+        int result, x;
+
+        for (int i = 1; i <= n; i++) {
+            eggFloor[i][0] = 0;   // Zero trial for zero floor.
+            eggFloor[i][1] = 1;   // One trial for one floor 
+        }
+
+        // j trials for only 1 egg
+
+        for (int j = 1; j <= m; j++)
+            eggFloor[1][j] = j;
+
+        // Using bottom-up approach in DP
+
+        for (int i = 2; i <= n; i++) {
+            for (int j = 2; j <= m; j++) {
+                eggFloor[i][j] = Integer.MAX_VALUE;
+                for (x = 1; x <= j; x++) {
+                    result = 1 + Math.max(eggFloor[i - 1][x - 1], eggFloor[i][j - x]);
+
+                    // choose min of all values for particular x
+                    if (result < eggFloor[i][j])
+                        eggFloor[i][j] = result;
+                }
+            }
+        }
+
+        return eggFloor[n][m];
+    }
+
+    public static void main(String args[]) {
+        int n = 2, m = 4;
+        // result outputs min no. of trials in worst case for n eggs and m floors
+        int result = minTrials(n, m);
+        System.out.println(result);
+    }
+}
+
+package DynamicProgramming;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+
+/**
+ * @author Varun Upadhyay (https://github.com/varunu28)
+ */
+
+public class Fibonacci {
+
+    private static Map<Integer, Integer> map = new HashMap<>();
+
+
+    public static void main(String[] args) {
+
+        // Methods all returning [0, 1, 1, 2, 3, 5, ...] for n = [0, 1, 2, 3, 4, 5, ...]
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        
+        System.out.println(fibMemo(n));
+        System.out.println(fibBotUp(n));
+        System.out.println(fibOptimized(n));
+        sc.close();
+    }
+
+    /**
+     * This method finds the nth fibonacci number using memoization technique
+     *
+     * @param n The input n for which we have to determine the fibonacci number
+     *          Outputs the nth fibonacci number
+     **/
+    public static int fibMemo(int n) {
+        if (map.containsKey(n)) {
+            return map.get(n);
+        }
+
+        int f;
+
+        if (n <= 1) {
+            f = n;
+        } else {
+            f = fibMemo(n - 1) + fibMemo(n - 2);
+            map.put(n, f);
+        }
+        return f;
+    }
+
+    /**
+     * This method finds the nth fibonacci number using bottom up
+     *
+     * @param n The input n for which we have to determine the fibonacci number
+     *          Outputs the nth fibonacci number
+     **/
+    public static int fibBotUp(int n) {
+
+        Map<Integer, Integer> fib = new HashMap<>();
+
+        for (int i = 0; i <= n; i++) {
+            int f;
+            if (i <= 1) {
+                f = i;
+            } else {
+                f = fib.get(i - 1) + fib.get(i - 2);
+            }
+            fib.put(i, f);
+        }
+
+        return fib.get(n);
+    }
+
+
+    /**
+     * This method finds the nth fibonacci number using bottom up
+     *
+     * @param n The input n for which we have to determine the fibonacci number
+     *          Outputs the nth fibonacci number
+     *          <p>
+     *          This is optimized version of Fibonacci Program. Without using Hashmap and recursion.
+     *          It saves both memory and time.
+     *          Space Complexity will be O(1)
+     *          Time Complexity will be O(n)
+     *          <p>
+     *          Whereas , the above functions will take O(n) Space.
+     * @author Shoaib Rayeen (https://github.com/shoaibrayeen)
+     **/
+    public static int fibOptimized(int n) {
+        if (n == 0) {
+            return 0;
+        }
+        int prev = 0, res = 1, next;
+        for (int i = 2; i <= n; i++) {
+            next = prev + res;
+            prev = res;
+            res = next;
+        }
+        return res;
+    }
+}
+
+package DynamicProgramming;
+
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Vector;
+
+public class FordFulkerson {
+    final static int INF = 987654321;
+    // edges
+    static int V;
+    static int[][] capacity, flow;
+
+    public static void main(String[] args) {
+        System.out.println("V : 6");
+        V = 6;
+        capacity = new int[V][V];
+
+        capacity[0][1] = 12;
+        capacity[0][3] = 13;
+        capacity[1][2] = 10;
+        capacity[2][3] = 13;
+        capacity[2][4] = 3;
+        capacity[2][5] = 15;
+        capacity[3][2] = 7;
+        capacity[3][4] = 15;
+        capacity[4][5] = 17;
+
+        System.out.println("Max capacity in networkFlow : " + networkFlow(0, 5));
+    }
+
+    private static int networkFlow(int source, int sink) {
+        flow = new int[V][V];
+        int totalFlow = 0;
+        while (true) {
+            Vector<Integer> parent = new Vector<>(V);
+            for (int i = 0; i < V; i++)
+                parent.add(-1);
+            Queue<Integer> q = new LinkedList<>();
+            parent.set(source, source);
+            q.add(source);
+            while (!q.isEmpty() && parent.get(sink) == -1) {
+                int here = q.peek();
+                q.poll();
+                for (int there = 0; there < V; ++there)
+                    if (capacity[here][there] - flow[here][there] > 0 && parent.get(there) == -1) {
+                        q.add(there);
+                        parent.set(there, here);
+                    }
+            }
+            if (parent.get(sink) == -1)
+                break;
+
+            int amount = INF;
+            String printer = "path : ";
+            StringBuilder sb = new StringBuilder();
+            for (int p = sink; p != source; p = parent.get(p)) {
+                amount = Math.min(capacity[parent.get(p)][p] - flow[parent.get(p)][p], amount);
+                sb.append(p + "-");
+            }
+            sb.append(source);
+            for (int p = sink; p != source; p = parent.get(p)) {
+                flow[parent.get(p)][p] += amount;
+                flow[p][parent.get(p)] -= amount;
+            }
+            totalFlow += amount;
+            printer += sb.reverse() + " / max flow : " + totalFlow;
+            System.out.println(printer);
+        }
+
+        return totalFlow;
+    }
+}
+
+package DynamicProgramming;
+
+import java.util.Scanner;
+
+/**
+ * Program to implement Kadane¡¯s Algorithm to
+ * calculate maximum contiguous subarray sum of an array
+ * Time Complexity: O(n)
+ *
+ * @author Nishita Aggarwal
+ */
+
+public class KadaneAlgorithm {
+
+    /**
+     * This method implements Kadane's Algorithm
+     *
+     * @param arr The input array
+     * @return The maximum contiguous subarray sum of the array
+     */
+    static int largestContiguousSum(int arr[]) {
+        int i, len = arr.length, cursum = 0, maxsum = Integer.MIN_VALUE;
+        if (len == 0)    //empty array
+            return 0;
+        for (i = 0; i < len; i++) {
+            cursum += arr[i];
+            if (cursum > maxsum) {
+                maxsum = cursum;
+            }
+            if (cursum <= 0) {
+                cursum = 0;
+            }
+        }
+        return maxsum;
+    }
+
+    /**
+     * Main method
+     *
+     * @param args Command line arguments
+     */
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n, arr[], i;
+        n = sc.nextInt();
+        arr = new int[n];
+        for (i = 0; i < n; i++) {
+            arr[i] = sc.nextInt();
+        }
+        int maxContSum = largestContiguousSum(arr);
+        System.out.println(maxContSum);
+        sc.close();
+    }
+
+}
+
+package DynamicProgramming;
+
+/**
+ * A DynamicProgramming based solution for 0-1 Knapsack problem
+ */
+
+public class Knapsack {
+
+    private static int knapSack(int W, int wt[], int val[], int n) throws IllegalArgumentException {
+        if(wt == null || val == null)
+            throw new IllegalArgumentException();
+        int i, w;
+        int rv[][] = new int[n + 1][W + 1];    //rv means return value
+
+        // Build table rv[][] in bottom up manner
+        for (i = 0; i <= n; i++) {
+            for (w = 0; w <= W; w++) {
+                if (i == 0 || w == 0)
+                    rv[i][w] = 0;
+                else if (wt[i - 1] <= w)
+                    rv[i][w] = Math.max(val[i - 1] + rv[i - 1][w - wt[i - 1]], rv[i - 1][w]);
+                else
+                    rv[i][w] = rv[i - 1][w];
+            }
+        }
+
+        return rv[n][W];
+    }
+
+
+    // Driver program to test above function
+    public static void main(String args[]) {
+        int val[] = new int[]{50, 100, 130};
+        int wt[] = new int[]{10, 20, 40};
+        int W = 50;
+        int n = val.length;
+        System.out.println(knapSack(W, wt, val, n));
+    }
+}
+
+package DynamicProgramming;
+
+/**
+ * @author Kshitij VERMA (github.com/kv19971)
+ * LEVENSHTEIN DISTANCE dyamic programming implementation to show the difference between two strings (https://en.wikipedia.org/wiki/Levenshtein_distance)
+ */
+
+public class LevenshteinDistance {
+    private static int minimum(int a, int b, int c) {
+        if (a < b && a < c) {
+            return a;
+        } else if (b < a && b < c) {
+            return b;
+        } else {
+            return c;
+        }
+    }
+
+    private static int calculate_distance(String a, String b) {
+        int len_a = a.length() + 1;
+        int len_b = b.length() + 1;
+        int[][] distance_mat = new int[len_a][len_b];
+        for (int i = 0; i < len_a; i++) {
+            distance_mat[i][0] = i;
+        }
+        for (int j = 0; j < len_b; j++) {
+            distance_mat[0][j] = j;
+        }
+        for (int i = 0; i < len_a; i++) {
+            for (int j = 0; j < len_b; j++) {
+                int cost;
+                if (a.charAt(i) == b.charAt(j)) {
+                    cost = 0;
+                } else {
+                    cost = 1;
+                }
+                distance_mat[i][j] = minimum(distance_mat[i - 1][j], distance_mat[i - 1][j - 1], distance_mat[i][j - 1]) + cost;
+
+
+            }
+
+        }
+        return distance_mat[len_a - 1][len_b - 1];
+
+    }
+
+    public static void main(String[] args) {
+        String a = ""; // enter your string here
+        String b = ""; // enter your string here
+
+        System.out.print("Levenshtein distance between " + a + " and " + b + " is: ");
+        System.out.println(calculate_distance(a, b));
+
+
+    }
+}
+
+package DynamicProgramming;
+
+class LongestCommonSubsequence {
+
+    public static String getLCS(String str1, String str2) {
+
+        //At least one string is null
+        if (str1 == null || str2 == null)
+            return null;
+
+        //At least one string is empty
+        if (str1.length() == 0 || str2.length() == 0)
+            return "";
+
+        String[] arr1 = str1.split("");
+        String[] arr2 = str2.split("");
+
+        //lcsMatrix[i][j]  = LCS of first i elements of arr1 and first j characters of arr2
+        int[][] lcsMatrix = new int[arr1.length + 1][arr2.length + 1];
+
+        for (int i = 0; i < arr1.length + 1; i++)
+            lcsMatrix[i][0] = 0;
+        for (int j = 1; j < arr2.length + 1; j++)
+            lcsMatrix[0][j] = 0;
+        for (int i = 1; i < arr1.length + 1; i++) {
+            for (int j = 1; j < arr2.length + 1; j++) {
+                if (arr1[i - 1].equals(arr2[j - 1])) {
+                    lcsMatrix[i][j] = lcsMatrix[i - 1][j - 1] + 1;
+                } else {
+                    lcsMatrix[i][j] = lcsMatrix[i - 1][j] > lcsMatrix[i][j - 1] ? lcsMatrix[i - 1][j] : lcsMatrix[i][j - 1];
+                }
+            }
+        }
+        return lcsString(str1, str2, lcsMatrix);
+    }
+
+    public static String lcsString(String str1, String str2, int[][] lcsMatrix) {
+        StringBuilder lcs = new StringBuilder();
+        int i = str1.length(),
+                j = str2.length();
+        while (i > 0 && j > 0) {
+            if (str1.charAt(i - 1) == str2.charAt(j - 1)) {
+                lcs.append(str1.charAt(i - 1));
+                i--;
+                j--;
+            } else if (lcsMatrix[i - 1][j] > lcsMatrix[i][j - 1]) {
+                i--;
+            } else {
+                j--;
+            }
+        }
+        return lcs.reverse().toString();
+    }
+
+    public static void main(String[] args) {
+        String str1 = "DSGSHSRGSRHTRD";
+        String str2 = "DATRGAGTSHS";
+        String lcs = getLCS(str1, str2);
+
+        //Print LCS
+        if (lcs != null) {
+            System.out.println("String 1: " + str1);
+            System.out.println("String 2: " + str2);
+            System.out.println("LCS: " + lcs);
+            System.out.println("LCS length: " + lcs.length());
+        }
+    }
+}
+package DynamicProgramming;
+
+import java.util.Scanner;
+
+/**
+ * @author Afrizal Fikri (https://github.com/icalF)
+ */
+public class LongestIncreasingSubsequence {
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+
+        int ar[] = new int[n];
+        for (int i = 0; i < n; i++) {
+            ar[i] = sc.nextInt();
+        }
+
+        System.out.println(LIS(ar));
+        sc.close();
+    }
+
+    private static int upperBound(int[] ar, int l, int r, int key) {
+        while (l < r - 1) {
+            int m = (l + r) / 2;
+            if (ar[m] >= key)
+                r = m;
+            else
+                l = m;
+        }
+
+        return r;
+    }
+
+    private static int LIS(int[] array) {
+        int N = array.length;
+        if (N == 0)
+            return 0;
+
+        int[] tail = new int[N];
+
+        // always points empty slot in tail
+        int length = 1;
+
+        tail[0] = array[0];
+        for (int i = 1; i < N; i++) {
+
+            // new smallest value
+            if (array[i] < tail[0])
+                tail[0] = array[i];
+
+                // array[i] extends largest subsequence
+            else if (array[i] > tail[length - 1])
+                tail[length++] = array[i];
+
+                // array[i] will become end candidate of an existing subsequence or
+                // Throw away larger elements in all LIS, to make room for upcoming grater elements than array[i]
+                // (and also, array[i] would have already appeared in one of LIS, identify the location and replace it)
+            else
+                tail[upperBound(tail, -1, length - 1, array[i])] = array[i];
+        }
+
+        return length;
+    }
+}
+package DynamicProgramming;
+
+import java.util.Scanner;
+
+/**
+ * Given a string containing just the characters '(' and ')', find the length of
+ * the longest valid (well-formed) parentheses substring.
+ *
+ * @author Libin Yang (https://github.com/yanglbme)
+ * @since 2018/10/5
+ */
+
+public class LongestValidParentheses {
+
+    public static int getLongestValidParentheses(String s) {
+        if (s == null || s.length() < 2) {
+            return 0;
+        }
+        char[] chars = s.toCharArray();
+        int n = chars.length;
+        int[] res = new int[n];
+        res[0] = 0;
+        res[1] = chars[1] == ')' && chars[0] == '(' ? 2 : 0;
+
+        int max = res[1];
+
+        for (int i = 2; i < n; ++i) {
+            if (chars[i] == ')') {
+                if (chars[i - 1] == '(') {
+                    res[i] = res[i - 2] + 2;
+                } else {
+                    int index = i - res[i - 1] - 1;
+                    if (index >= 0 && chars[index] == '(') {
+                        // ()(())
+                        res[i] = res[i - 1] + 2 + (index - 1 >= 0 ? res[index - 1] : 0);
+                    }
+                }
+            }
+            max = Math.max(max, res[i]);
+        }
+
+        return max;
+
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        while (true) {
+            String str = sc.nextLine();
+            if ("quit".equals(str)) {
+                break;
+            }
+            int len = getLongestValidParentheses(str);
+            System.out.println(len);
+
+        }
+
+        sc.close();
+    }
+}
+
+package DynamicProgramming;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Scanner;
+
+public class MatrixChainMultiplication {
+    private static Scanner scan = new Scanner(System.in);
+    private static ArrayList<Matrix> mArray = new ArrayList<>();
+    private static int size;
+    private static int[][] m;
+    private static int[][] s;
+    private static int[] p;
+
+    public static void main(String[] args) {
+        int count = 1;
+        while (true) {
+            String[] mSize = input("input size of matrix A(" + count + ") ( ex. 10 20 ) : ");
+            int col = Integer.parseInt(mSize[0]);
+            if (col == 0) break;
+            int row = Integer.parseInt(mSize[1]);
+
+            Matrix matrix = new Matrix(count, col, row);
+            mArray.add(matrix);
+            count++;
+        }
+        for (Matrix m : mArray) {
+            System.out.format("A(%d)  =  %2d  x  %2d\n", m.count(), m.col(), m.row());
+        }
+
+        size = mArray.size();
+        m = new int[size + 1][size + 1];
+        s = new int[size + 1][size + 1];
+        p = new int[size + 1];
+
+        for (int i = 0; i < size + 1; i++) {
+            Arrays.fill(m[i], -1);
+            Arrays.fill(s[i], -1);
+        }
+
+        for (int i = 0; i < p.length; i++) {
+            p[i] = i == 0 ? mArray.get(i).col() : mArray.get(i - 1).row();
+        }
+
+        matrixChainOrder();
+        for (int i = 0; i < size; i++) {
+            System.out.print("-------");
+        }
+        System.out.println();
+        printArray(m);
+        for (int i = 0; i < size; i++) {
+            System.out.print("-------");
+        }
+        System.out.println();
+        printArray(s);
+        for (int i = 0; i < size; i++) {
+            System.out.print("-------");
+        }
+        System.out.println();
+
+        System.out.println("Optimal solution : " + m[1][size]);
+        System.out.print("Optimal parens : ");
+        printOptimalParens(1, size);
+    }
+
+    private static void printOptimalParens(int i, int j) {
+        if (i == j) {
+            System.out.print("A" + i);
+        } else {
+            System.out.print("(");
+            printOptimalParens(i, s[i][j]);
+            printOptimalParens(s[i][j] + 1, j);
+            System.out.print(")");
+        }
+    }
+
+    private static void printArray(int[][] array) {
+        for (int i = 1; i < size + 1; i++) {
+            for (int j = 1; j < size + 1; j++) {
+                System.out.print(String.format("%7d", array[i][j]));
+            }
+            System.out.println();
+        }
+    }
+
+    private static void matrixChainOrder() {
+        for (int i = 1; i < size + 1; i++) {
+            m[i][i] = 0;
+        }
+
+        for (int l = 2; l < size + 1; l++) {
+            for (int i = 1; i < size - l + 2; i++) {
+                int j = i + l - 1;
+                m[i][j] = Integer.MAX_VALUE;
+
+                for (int k = i; k < j; k++) {
+                    int q = m[i][k] + m[k + 1][j] + p[i - 1] * p[k] * p[j];
+                    if (q < m[i][j]) {
+                        m[i][j] = q;
+                        s[i][j] = k;
+                    }
+                }
+            }
+        }
+    }
+
+    private static String[] input(String string) {
+        System.out.print(string);
+        return (scan.nextLine().split(" "));
+    }
+
+}
+
+class Matrix {
+    private int count;
+    private int col;
+    private int row;
+
+    Matrix(int count, int col, int row) {
+        this.count = count;
+        this.col = col;
+        this.row = row;
+    }
+
+    int count() {
+        return count;
+    }
+
+    int col() {
+        return col;
+    }
+
+    int row() {
+        return row;
+    }
+}
+
+package DynamicProgramming;
+
+/**
+ * A DynamicProgramming solution for Rod cutting problem
+ * Returns the best obtainable price for a rod of
+ * length n and price[] as prices of different pieces
+ */
+public class RodCutting {
+
+    private static int cutRod(int[] price, int n) {
+        int val[] = new int[n + 1];
+        val[0] = 0;
+
+        for (int i = 1; i <= n; i++) {
+            int max_val = Integer.MIN_VALUE;
+            for (int j = 0; j < i; j++)
+                max_val = Math.max(max_val, price[j] + val[i - j - 1]);
+
+            val[i] = max_val;
+        }
+
+        return val[n];
+    }
+
+    // main function to test
+    public static void main(String args[]) {
+        int[] arr = new int[]{2, 5, 13, 19, 20};
+        int size = arr.length;
+	int result = cutRod(arr,size); 
+        System.out.println("Maximum Obtainable Value is " +
+                result);
+    }
+}
+

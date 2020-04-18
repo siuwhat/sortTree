@@ -1,0 +1,2571 @@
+package Others;
+
+/**
+ * An Abecadrian is a word where each letter is in alphabetical order
+ *
+ * @author Oskar Enmalm
+ */
+class Abecedarian {
+
+    public static boolean isAbecedarian(String s) {
+        int index = s.length() - 1;
+
+        for (int i = 0; i < index; i++) {
+
+            if (s.charAt(i) <= s.charAt(i + 1)) {
+            } //Need to check if each letter for the whole word is less than the one before it
+
+            else {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+
+package Others;
+
+import java.util.Scanner;
+
+/**
+ * A utility to check if a given number is armstrong or not. Armstrong number is
+ * a number that is equal to the sum of cubes of its digits for example 0, 1,
+ * 153, 370, 371, 407 etc. For example 153 = 1^3 + 5^3 +3^3
+ *
+ * @author mani manasa mylavarapu
+ */
+public class Armstrong {
+    static Scanner scan;
+
+    public static void main(String[] args) {
+        scan = new Scanner(System.in);
+        int n = inputInt("please enter the number");
+        boolean isArmstrong = checkIfANumberIsAmstrongOrNot(n);
+        if (isArmstrong) {
+            System.out.println("the number is armstrong");
+        } else {
+            System.out.println("the number is not armstrong");
+        }
+    }
+
+    /**
+     * Checks whether a given number is an armstrong number or not. Armstrong
+     * number is a number that is equal to the sum of cubes of its digits for
+     * example 0, 1, 153, 370, 371, 407 etc.
+     *
+     * @param number
+     * @return boolean
+     */
+    public static boolean checkIfANumberIsAmstrongOrNot(int number) {
+        int remainder, sum = 0, temp = 0;
+        temp = number;
+        while (number > 0) {
+            remainder = number % 10;
+            sum = sum + (remainder * remainder * remainder);
+            number = number / 10;
+        }
+        return sum == temp;
+    }
+
+    private static int inputInt(String string) {
+        System.out.print(string);
+        return Integer.parseInt(scan.nextLine());
+    }
+}
+
+package Others;
+
+import java.util.ArrayList;
+
+/**
+ * @author Dekas Dimitrios
+ */
+public class BestFit {
+    private static final int NO_ALLOCATION = -255; // if a process has been allocated in position -255,
+                                                   // it means that it has not been actually allocated.
+
+    /**
+     * Method to find the maximum valued element of an array filled with positive integers.
+     *
+     * @param array: an array filled with positive integers.
+     * @return the maximum valued element of the array.
+     */
+    private static int findMaxElement(int[] array) {
+        int max = -1;
+        for (int value : array) {
+            if (value > max) {
+                max = value;
+            }
+        }
+        return max;
+    }
+
+    /**
+     * Method to find the index of the memory block that is going to fit the given process based on the best fit algorithm.
+     *
+     * @param blocks: the array with the available memory blocks.
+     * @param process: the size of the process.
+     * @return the index of the block that fits, or -255 if no such block exists.
+     */
+    private static int findBestFit(int[] blockSizes, int processSize) {
+        // Initialize minDiff with an unreachable value by a difference between a blockSize and the processSize.
+        int minDiff = findMaxElement(blockSizes);
+        int index = NO_ALLOCATION; // If there is no block that can fit the process, return NO_ALLOCATION as the result.
+        for(int i=0 ; i < blockSizes.length ; i++) { // Find the most fitting memory block for the given process.
+            if(blockSizes[i] - processSize < minDiff && blockSizes[i] - processSize >= 0) {
+                minDiff = blockSizes[i] - processSize;
+                index = i;
+            }
+        }
+        return index;
+    }
+
+    /**
+     * Method to allocate memory to blocks according to the best fit
+     * algorithm. It should return an ArrayList of Integers, where the
+     * index is the process ID (zero-indexed) and the value is the block
+     * number (also zero-indexed).
+     *
+     * @param sizeOfBlocks: an int array that contains the sizes of the memory blocks available.
+     * @param sizeOfProcesses: an int array that contains the sizes of the processes we need memory blocks for.
+     * @return the ArrayList filled with Integers repressenting the memory allocation that took place.
+     */
+    static ArrayList<Integer> bestFit(int[] sizeOfBlocks, int[] sizeOfProcesses) {
+        // The array list responsible for saving the memory allocations done by the best-fit algorithm
+        ArrayList<Integer> memAlloc = new ArrayList<>();
+        // Do this for every process
+        for(int processSize : sizeOfProcesses) {
+            int chosenBlockIdx = findBestFit(sizeOfBlocks, processSize); // Find the index of the memory block going to be used
+            memAlloc.add(chosenBlockIdx); // Store the chosen block index in the memAlloc array list
+            if(chosenBlockIdx != NO_ALLOCATION) { // Only if a block was chosen to store the process in it,
+                sizeOfBlocks[chosenBlockIdx] -= processSize; // resize the block based on the process size
+            }
+        }
+        return memAlloc;
+    }
+
+    /**
+     * Method to print the memory allocated.
+     *
+     * @param memAllocation: an ArrayList of Integer representing the memory allocation done by the bestFit method.
+     */
+    public static void printMemoryAllocation(ArrayList<Integer> memAllocation) {
+        System.out.println("Process No.\tBlock No.");
+        System.out.println("===========\t=========");
+        for (int i = 0; i < memAllocation.size(); i++) {
+            System.out.print(" " + i + "\t\t");
+            if (memAllocation.get(i) != NO_ALLOCATION)
+                System.out.print(memAllocation.get(i));
+            else
+                System.out.print("Not Allocated");
+            System.out.println();
+        }
+    }
+}
+package Others;
+
+import java.util.Scanner;
+
+/**
+ * @author Nishita Aggarwal
+ * <p>
+ * Brian Kernighan＊s Algorithm
+ * <p>
+ * algorithm to count the number of set bits in a given number
+ * <p>
+ * Subtraction of 1 from a number toggles all the bits (from right to left) till the rightmost set bit(including the
+ * rightmost set bit).
+ * So if we subtract a number by 1 and do bitwise & with itself i.e. (n & (n-1)), we unset the rightmost set bit.
+ * <p>
+ * If we do n & (n-1) in a loop and count the no of times loop executes we get the set bit count.
+ * <p>
+ * <p>
+ * Time Complexity: O(logn)
+ */
+
+
+public class BrianKernighanAlgorithm {
+
+    /**
+     * @param num: number in which we count the set bits
+     * @return int: Number of set bits
+     */
+    static int countSetBits(int num) {
+        int cnt = 0;
+        while (num != 0) {
+            num = num & (num - 1);
+            cnt++;
+        }
+        return cnt;
+    }
+
+
+    /**
+     * @param args : command line arguments
+     */
+    public static void main(String args[]) {
+        Scanner sc = new Scanner(System.in);
+        int num = sc.nextInt();
+        int setBitCount = countSetBits(num);
+        System.out.println(setBitCount);
+        sc.close();
+    }
+}
+
+package Others;
+
+import java.util.Scanner;
+
+public class CountChar {
+
+    public static void main(String[] args) {
+        Scanner input = new Scanner(System.in);
+        System.out.print("Enter your text: ");
+        String str = input.nextLine();
+        input.close();
+        System.out.println("There are " + CountCharacters(str) + " characters.");
+    }
+
+    /**
+     * Count non space character in string
+     *
+     * @param str String to count the characters
+     * @return number of character in the specified string
+     */
+    private static int CountCharacters(String str) {
+        return str.replaceAll("\\s", "").length();
+    }
+}
+
+package Others;
+
+import java.util.Scanner;
+
+/**
+ * You enter a string into this program, and it will return how many words were
+ * in that particular string
+ *
+ * @author Marcus
+ */
+public class CountWords {
+
+    public static void main(String[] args) {
+        Scanner input = new Scanner(System.in);
+        System.out.println("Enter your text: ");
+        String str = input.nextLine();
+
+        System.out.println("Your text has " + wordCount(str) + " word(s)");
+        System.out.println("Your text has " + secondaryWordCount(str) + " word(s)");
+        input.close();
+    }
+
+    private static int wordCount(String s) {
+        if (s == null || s.isEmpty())
+            return 0;
+        return s.trim().split("[\\s]+").length;
+    }
+
+    /**
+     * counts the number of words in a sentence but ignores all potential
+     * non-alphanumeric characters that do not represent a word. runs in O(n) where
+     * n is the length of s
+     * 
+     * @param s String: sentence with word(s)
+     * @return int: number of words
+     */
+    private static int secondaryWordCount(String s) {
+        if (s == null || s.isEmpty())
+            return 0;
+        StringBuilder sb = new StringBuilder();
+        for (char c : s.toCharArray()) {
+            if (Character.isLetter(c) || Character.isDigit(c))
+                sb.append(c);
+        }
+        s = sb.toString();
+        return s.trim().split("[\\s]+").length;
+    }
+}
+
+package Others;
+
+import java.util.BitSet;
+
+/**
+ * Generates a crc32 checksum for a given string or byte array
+ */
+public class CRC32 {
+
+    public static void main(String[] args) {
+        System.out.println(Integer.toHexString(crc32("Hello World")));
+    }
+
+    public static int crc32(String str) {
+        return crc32(str.getBytes());
+    }
+
+    public static int crc32(byte[] data) {
+        BitSet bitSet = BitSet.valueOf(data);
+        int crc32 = 0xFFFFFFFF; // initial value
+        for (int i = 0; i < data.length * 8; i++) {
+            if (((crc32 >>> 31) & 1) != (bitSet.get(i) ? 1 : 0))
+                crc32 = (crc32 << 1) ^ 0x04C11DB7; // xor with polynomial
+            else
+                crc32 = (crc32 << 1);
+        }
+        crc32 = Integer.reverse(crc32); // result reflect
+        return crc32 ^ 0xFFFFFFFF; // final xor value
+    }
+
+}
+
+package Others;
+
+import java.util.ArrayList;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+
+/**
+ * @author dimgrichr
+ */
+public class CRCAlgorithm {
+
+    private int correctMess;
+
+    private int wrongMess;
+
+    private int wrongMessCaught;
+
+    private int wrongMessNotCaught;
+
+    private int messSize;
+
+    private double ber;
+
+    private boolean messageChanged;
+
+    private ArrayList<Integer> message;
+
+    private ArrayList<Integer> dividedMessage;
+
+    private ArrayList<Integer> p;
+
+    private Random randomGenerator;
+
+
+    /**
+     * The algorithm's main constructor.
+     * The most significant variables, used in the algorithm,
+     * are set in their initial values.
+     *
+     * @param str  The binary number P, in a string form, which is used by the CRC algorithm
+     * @param size The size of every transmitted message
+     * @param ber  The Bit Error Rate
+     */
+    public CRCAlgorithm(String str, int size, double ber) {
+        messageChanged = false;
+        message = new ArrayList<>();
+        messSize = size;
+        dividedMessage = new ArrayList<>();
+        p = new ArrayList<>();
+        for (int i = 0; i < str.length(); i++) {
+            p.add(Character.getNumericValue(str.charAt(i)));
+        }
+        randomGenerator = new Random();
+        correctMess = 0;
+        wrongMess = 0;
+        wrongMessCaught = 0;
+        wrongMessNotCaught = 0;
+        this.ber = ber;
+    }
+
+
+    /**
+     * Returns the counter wrongMess
+     *
+     * @return wrongMess, the number of Wrong Messages
+     */
+    public int getWrongMess() {
+        return wrongMess;
+    }
+
+    /**
+     * Returns the counter wrongMessCaught
+     *
+     * @return wrongMessCaught, the number of wrong messages, which are caught by the CRC algoriithm
+     */
+    public int getWrongMessCaught() {
+        return wrongMessCaught;
+    }
+
+    /**
+     * Returns the counter wrongMessNotCaught
+     *
+     * @return wrongMessNotCaught, the number of wrong messages, which are not caught by the CRC algorithm
+     */
+    public int getWrongMessNotCaught() {
+        return wrongMessNotCaught;
+    }
+
+    /**
+     * Returns the counter correctMess
+     *
+     * @return correctMess, the number of the Correct Messages
+     */
+    public int getCorrectMess() {
+        return correctMess;
+    }
+
+    /**
+     * Resets some of the object's values, used on the main function,
+     * so that it can be re-used, in order not to waste too much memory and time,
+     * by creating new objects.
+     */
+    public void refactor() {
+        messageChanged = false;
+        message = new ArrayList<>();
+        dividedMessage = new ArrayList<>();
+    }
+
+    /**
+     * Random messages, consisted of 0's and 1's,
+     * are generated, so that they can later be transmitted
+     */
+    public void generateRandomMess() {
+        for (int i = 0; i < messSize; i++) {
+            int x = ThreadLocalRandom.current().nextInt(0, 2);
+            message.add(x);
+        }
+    }
+
+    /**
+     * The most significant part of the CRC algorithm.
+     * The message is divided by P, so the dividedMessage ArrayList<Integer> is created.
+     * If check == true, the dividedMessaage is examined, in order to see if it contains any 1's.
+     * If it does, the message is considered to be wrong by the receiver,so the variable wrongMessCaught changes.
+     * If it does not, it is accepted, so one of the variables correctMess, wrongMessNotCaught, changes.
+     * If check == false, the diviided Message is added at the end of the ArrayList<integer> message.
+     *
+     * @param check the variable used to determine, if the message is going to be checked from the receiver
+     *              if true, it is checked
+     *              otherwise, it is not
+     */
+    public void divideMessageWithP(boolean check) {
+        ArrayList<Integer> x = new ArrayList<>();
+        ArrayList<Integer> k = (ArrayList<Integer>) message.clone();
+        if (!check) {
+            for (int i = 0; i < p.size() - 1; i++) {
+                k.add(0);
+            }
+        }
+        while (!k.isEmpty()) {
+            while (x.size() < p.size() && !k.isEmpty()) {
+                x.add(k.get(0));
+                k.remove(0);
+            }
+            if (x.size() == p.size()) {
+                for (int i = 0; i < p.size(); i++) {
+                    if (x.get(i) == p.get(i)) {
+                        x.set(i, 0);
+                    } else {
+                        x.set(i, 1);
+                    }
+                }
+                for (int i = 0; i < x.size() && x.get(i) != 1; i++) {
+                    x.remove(0);
+                }
+            }
+        }
+        dividedMessage = (ArrayList<Integer>) x.clone();
+        if (!check) {
+            for (int z : dividedMessage) {
+                message.add(z);
+            }
+        } else {
+            if (dividedMessage.contains(1) && messageChanged) {
+                wrongMessCaught++;
+            } else if (!dividedMessage.contains(1) && messageChanged) {
+                wrongMessNotCaught++;
+            } else if (!messageChanged) {
+                correctMess++;
+            }
+        }
+    }
+
+    /**
+     * Once the message is transmitted, some of it's elements,
+     * is possible to change from 1 to 0, or from 0 to 1,
+     * because of the Bit Error Rate (ber).
+     * For every element of the message, a random double number is created.
+     * If that number is smaller than  ber, then the spesific element changes.
+     * On the other hand, if it's bigger than ber, it does not.
+     * Based on these changes. the boolean variable messageChanged, gets the value:
+     * true, or false.
+     */
+    public void changeMess() {
+        for (int y : message) {
+            double x = randomGenerator.nextDouble();
+            while (x < 0.0000 || x > 1.00000) {
+                x = randomGenerator.nextDouble();
+            }
+            if (x < ber) {
+                messageChanged = true;
+                if (y == 1) {
+                    message.set(message.indexOf(y), 0);
+                } else {
+                    message.set(message.indexOf(y), 1);
+                }
+            }
+        }
+        if (messageChanged) {
+            wrongMess++;
+        }
+    }
+}
+
+package Others;
+
+
+/**
+ * Dijkstra's algorithm,is a graph search algorithm that solves the single-source
+ * shortest path problem for a graph with nonnegative edge path costs, producing
+ * a shortest path tree.
+ * <p>
+ * NOTE:  The inputs to Dijkstra's algorithm are a directed and weighted graph consisting
+ * of 2 or more nodes, generally represented by an adjacency matrix or list, and a start node.
+ * <p>
+ * Original source of code: https://rosettacode.org/wiki/Dijkstra%27s_algorithm#Java
+ * Also most of the comments are from RosettaCode.
+ */
+
+import java.util.*;
+
+public class Dijkstra {
+    private static final Graph.Edge[] GRAPH = {
+            // Distance from node "a" to node "b" is 7.
+            // In the current Graph there is no way to move the other way (e,g, from "b" to "a"),
+            // a new edge would be needed for that
+            new Graph.Edge("a", "b", 7),
+            new Graph.Edge("a", "c", 9),
+            new Graph.Edge("a", "f", 14),
+            new Graph.Edge("b", "c", 10),
+            new Graph.Edge("b", "d", 15),
+            new Graph.Edge("c", "d", 11),
+            new Graph.Edge("c", "f", 2),
+            new Graph.Edge("d", "e", 6),
+            new Graph.Edge("e", "f", 9),
+    };
+    private static final String START = "a";
+    private static final String END = "e";
+
+    /**
+     * main function
+     * Will run the code with "GRAPH" that was defined above.
+     */
+    public static void main(String[] args) {
+        Graph g = new Graph(GRAPH);
+        g.dijkstra(START);
+        g.printPath(END);
+        //g.printAllPaths();
+    }
+}
+
+class Graph {
+    // mapping of vertex names to Vertex objects, built from a set of Edges
+    private final Map<String, Vertex> graph;
+
+    /**
+     * One edge of the graph (only used by Graph constructor)
+     */
+    public static class Edge {
+        public final String v1, v2;
+        public final int dist;
+
+        public Edge(String v1, String v2, int dist) {
+            this.v1 = v1;
+            this.v2 = v2;
+            this.dist = dist;
+        }
+    }
+
+    /**
+     * One vertex of the graph, complete with mappings to neighbouring vertices
+     */
+    public static class Vertex implements Comparable<Vertex> {
+        public final String name;
+        // MAX_VALUE assumed to be infinity
+        public int dist = Integer.MAX_VALUE;
+        public Vertex previous = null;
+        public final Map<Vertex, Integer> neighbours = new HashMap<>();
+
+        public Vertex(String name) {
+            this.name = name;
+        }
+
+        private void printPath() {
+            if (this == this.previous) {
+                System.out.printf("%s", this.name);
+            } else if (this.previous == null) {
+                System.out.printf("%s(unreached)", this.name);
+            } else {
+                this.previous.printPath();
+                System.out.printf(" -> %s(%d)", this.name, this.dist);
+            }
+        }
+
+        public int compareTo(Vertex other) {
+            if (dist == other.dist)
+                return name.compareTo(other.name);
+
+            return Integer.compare(dist, other.dist);
+        }
+
+        @Override
+        public String toString() {
+            return "(" + name + ", " + dist + ")";
+        }
+    }
+
+    /**
+     * Builds a graph from a set of edges
+     */
+    public Graph(Edge[] edges) {
+        graph = new HashMap<>(edges.length);
+
+        // one pass to find all vertices
+        for (Edge e : edges) {
+            if (!graph.containsKey(e.v1)) graph.put(e.v1, new Vertex(e.v1));
+            if (!graph.containsKey(e.v2)) graph.put(e.v2, new Vertex(e.v2));
+        }
+
+        // another pass to set neighbouring vertices
+        for (Edge e : edges) {
+            graph.get(e.v1).neighbours.put(graph.get(e.v2), e.dist);
+            // graph.get(e.v2).neighbours.put(graph.get(e.v1), e.dist); // also do this for an undirected graph
+        }
+    }
+
+    /**
+     * Runs dijkstra using a specified source vertex
+     */
+    public void dijkstra(String startName) {
+        if (!graph.containsKey(startName)) {
+            System.err.printf("Graph doesn't contain start vertex \"%s\"\n", startName);
+            return;
+        }
+        final Vertex source = graph.get(startName);
+        NavigableSet<Vertex> q = new TreeSet<>();
+
+        // set-up vertices
+        for (Vertex v : graph.values()) {
+            v.previous = v == source ? source : null;
+            v.dist = v == source ? 0 : Integer.MAX_VALUE;
+            q.add(v);
+        }
+
+        dijkstra(q);
+    }
+
+    /**
+     * Implementation of dijkstra's algorithm using a binary heap.
+     */
+    private void dijkstra(final NavigableSet<Vertex> q) {
+        Vertex u, v;
+        while (!q.isEmpty()) {
+            // vertex with shortest distance (first iteration will return source)
+            u = q.pollFirst();
+            if (u.dist == Integer.MAX_VALUE)
+                break; // we can ignore u (and any other remaining vertices) since they are unreachable
+
+            // look at distances to each neighbour
+            for (Map.Entry<Vertex, Integer> a : u.neighbours.entrySet()) {
+                v = a.getKey(); // the neighbour in this iteration
+
+                final int alternateDist = u.dist + a.getValue();
+                if (alternateDist < v.dist) { // shorter path to neighbour found
+                    q.remove(v);
+                    v.dist = alternateDist;
+                    v.previous = u;
+                    q.add(v);
+                }
+            }
+        }
+    }
+
+    /**
+     * Prints a path from the source to the specified vertex
+     */
+    public void printPath(String endName) {
+        if (!graph.containsKey(endName)) {
+            System.err.printf("Graph doesn't contain end vertex \"%s\"\n", endName);
+            return;
+        }
+
+        graph.get(endName).printPath();
+        System.out.println();
+    }
+
+    /**
+     * Prints the path from the source to every vertex (output order is not guaranteed)
+     */
+    public void printAllPaths() {
+        for (Vertex v : graph.values()) {
+            v.printPath();
+            System.out.println();
+        }
+    }
+}
+package Others;
+
+/**
+ * You can read more about Euler's totient function
+ * <p>
+ * See https://en.wikipedia.org/wiki/Euler%27s_totient_function
+ */
+public class EulersFunction {
+    // This method returns us number of x that (x < n) and gcd(x, n) == 1 in O(sqrt(n)) time complexity;
+    public static int getEuler(int n) {
+        int result = n;
+        for (int i = 2; i * i <= n; i++) {
+            if (n % i == 0) {
+                while (n % i == 0) n /= i;
+                result -= result / i;
+            }
+        }
+        if (n > 1) result -= result / n;
+        return result;
+    }
+
+    public static void main(String[] args) {
+        for (int i = 1; i < 100; i++) {
+            System.out.println(getEuler(i));
+        }
+    }
+}
+
+package Others;
+
+import java.util.Scanner;
+
+/**
+ * Fibonacci sequence, and characterized by the fact that every number
+ * after the first two is the sum of the two preceding ones.
+ * <p>
+ * Fibonacci sequence: 0, 1, 1, 2, 3, 5, 8, 13, 21,...
+ * <p>
+ * Source for the explanation: https://en.wikipedia.org/wiki/Fibonacci_number
+ */
+
+public class FibToN {
+    public static void main(String[] args) {
+        //take input
+        Scanner scn = new Scanner(System.in);
+        int N = scn.nextInt();
+        // print all Fibonacci numbers that are smaller than your given input N
+        int first = 0, second = 1;
+        scn.close();
+        while (first <= N) {
+            //print first fibo 0 then add second fibo into it while updating second as well
+
+            System.out.println(first);
+
+            int next = first + second;
+            first = second;
+            second = next;
+        }
+    }
+
+}
+
+package Others;
+
+import java.util.ArrayList;
+
+/**
+ * @author Dekas Dimitrios
+ */
+public class FirstFit {
+    private static final int NO_ALLOCATION = -255; // if a process has been allocated in position -255,
+                                                   // it means that it has not been actually allocated.
+
+    /**
+     * Method to find the index of the memory block that is going to fit the given process based on the first fit algorithm.
+     *
+     * @param blocks: the array with the available memory blocks.
+     * @param process: the size of the process.
+     * @return the index of the block that fits, or -255 if no such block exists.
+     */
+    private static int findFirstFit(int[] blockSizes, int processSize) {
+        for(int i=0 ; i < blockSizes.length ; i++) {
+            if(blockSizes[i] >= processSize) {
+                return i;
+            }
+        }
+        // If there is not a block that can fit the process, return -255 as the result
+        return NO_ALLOCATION;
+    }
+
+    /**
+     * Method to allocate memory to blocks according to the first fit
+     * algorithm. It should return an ArrayList of Integers, where the
+     * index is the process ID (zero-indexed) and the value is the block
+     * number (also zero-indexed).
+     *
+     * @param sizeOfBlocks: an int array that contains the sizes of the memory blocks available.
+     * @param sizeOfProcesses: an int array that contains the sizes of the processes we need memory blocks for.
+     * @return the ArrayList filled with Integers repressenting the memory allocation that took place.
+     */
+    static ArrayList<Integer> firstFit(int[] sizeOfBlocks, int[] sizeOfProcesses) {
+        // The array list responsible for saving the memory allocations done by the first-fit algorithm
+        ArrayList<Integer> memAlloc = new ArrayList<>();
+        // Do this for every process
+        for(int processSize : sizeOfProcesses) {
+            int chosenBlockIdx = findFirstFit(sizeOfBlocks, processSize); // Find the index of the memory block going to be used
+            memAlloc.add(chosenBlockIdx); // Store the chosen block index in the memAlloc array list
+            if(chosenBlockIdx != NO_ALLOCATION) { // Only if a block was chosen to store the process in it,
+                sizeOfBlocks[chosenBlockIdx] -= processSize; // resize the block based on the process size
+            }
+        }
+        return memAlloc;
+    }
+
+    /**
+     * Method to print the memory allocated.
+     *
+     * @param memAllocation: an ArrayList of Integer representing the memory allocation done by the firstFit method.
+     */
+    public static void printMemoryAllocation(ArrayList<Integer> memAllocation) {
+        System.out.println("Process No.\tBlock No.");
+        System.out.println("===========\t=========");
+        for (int i = 0; i < memAllocation.size(); i++) {
+            System.out.print(" " + i + "\t\t");
+            if (memAllocation.get(i) != NO_ALLOCATION)
+                System.out.print(memAllocation.get(i));
+            else
+                System.out.print("Not Allocated");
+            System.out.println();
+        }
+    }
+}
+package Others;
+
+import java.util.Scanner;
+
+
+class FloydTriangle {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Enter the number of rows which you want in your Floyd Triangle: ");
+        int r = sc.nextInt(), n = 0;
+        sc.close();
+        for (int i = 0; i < r; i++) {
+            for (int j = 0; j <= i; j++) {
+                System.out.print(++n + " ");
+            }
+            System.out.println();
+        }
+    }
+}
+
+package Others;
+
+import java.lang.Math;
+
+/**
+ * Guass Legendre Algorithm
+ * ref https://en.wikipedia.org/wiki/Gauss每Legendre_algorithm
+ *
+ * @author AKS1996
+ */
+public class GuassLegendre {
+
+    public static void main(String[] args) {
+        for (int i = 1; i <= 3; ++i)
+            System.out.println(pi(i));
+
+    }
+
+    static double pi(int l) {
+        /*
+         * l: No of loops to run
+         */
+
+        double a = 1, b = Math.pow(2, -0.5), t = 0.25, p = 1;
+        for (int i = 0; i < l; ++i) {
+            double temp[] = update(a, b, t, p);
+            a = temp[0];
+            b = temp[1];
+            t = temp[2];
+            p = temp[3];
+        }
+
+        return Math.pow(a + b, 2) / (4 * t);
+    }
+
+    static double[] update(double a, double b, double t, double p) {
+        double values[] = new double[4];
+        values[0] = (a + b) / 2;
+        values[1] = Math.sqrt(a * b);
+        values[2] = t - p * Math.pow(a - values[0], 2);
+        values[3] = 2 * p;
+
+        return values;
+    }
+
+}
+
+package Others;
+
+import java.util.*;
+
+public class InsertDeleteInArray {
+
+    public static void main(String[] args) {
+        Scanner s = new Scanner(System.in); // Input statement
+        System.out.println("Enter the size of the array");
+        int size = s.nextInt();
+        int a[] = new int[size];
+        int i;
+
+        // To enter the initial elements
+        for (i = 0; i < size; i++) {
+            System.out.println("Enter the element");
+            a[i] = s.nextInt();
+        }
+
+        // To insert a new element(we are creating a new array)
+        System.out.println("Enter the index at which the element should be inserted");
+        int insert_pos = s.nextInt();
+        System.out.println("Enter the element to be inserted");
+        int ins = s.nextInt();
+        int size2 = size + 1;
+        int b[] = new int[size2];
+        for (i = 0; i < size2; i++) {
+            if (i <= insert_pos) {
+                b[i] = a[i];
+            } else {
+                b[i] = a[i - 1];
+            }
+        }
+        b[insert_pos] = ins;
+        for (i = 0; i < size2; i++) {
+            System.out.println(b[i]);
+        }
+
+        // To delete an element given the index
+        System.out.println("Enter the index at which element is to be deleted");
+        int del_pos = s.nextInt();
+        for (i = del_pos; i < size2 - 1; i++) {
+            b[i] = b[i + 1];
+        }
+        for (i = 0; i < size2 - 1; i++)
+            System.out.println(b[i]);
+        s.close();
+    }
+}
+
+package Others;
+
+/**
+ * Implementation of Knuth每Morris每Pratt algorithm
+ * Usage: see the main function for an example
+ */
+public class KMP {
+    //a working example
+    public static void main(String[] args) {
+        final String haystack = "AAAAABAAABA";        //This is the full string
+        final String needle = "AAAA";                //This is the substring that we want to find
+        KMPmatcher(haystack, needle);
+    }
+
+    // find the starting index in string haystack[] that matches the search word P[]
+    public static void KMPmatcher(final String haystack, final String needle) {
+        final int m = haystack.length();
+        final int n = needle.length();
+        final int[] pi = computePrefixFunction(needle);
+        int q = 0;
+        for (int i = 0; i < m; i++) {
+            while (q > 0 && haystack.charAt(i) != needle.charAt(q)) {
+                q = pi[q - 1];
+            }
+
+            if (haystack.charAt(i) == needle.charAt(q)) {
+                q++;
+            }
+
+            if (q == n) {
+                System.out.println("Pattern starts: " + (i + 1 - n));
+                q = pi[q - 1];
+            }
+        }
+    }
+
+    // return the prefix function
+    private static int[] computePrefixFunction(final String P) {
+        final int n = P.length();
+        final int[] pi = new int[n];
+        pi[0] = 0;
+        int q = 0;
+        for (int i = 1; i < n; i++) {
+            while (q > 0 && P.charAt(q) != P.charAt(i)) {
+                q = pi[q - 1];
+            }
+
+            if (P.charAt(q) == P.charAt(i)) {
+                q++;
+            }
+
+            pi[i] = q;
+
+        }
+        return pi;
+    }
+}
+package Others;
+
+import java.util.Scanner;
+
+class Krishnamurthy {
+    static int fact(int n) {
+        int i, p = 1;
+        for (i = n; i >= 1; i--)
+            p = p * i;
+        return p;
+    }
+
+    public static void main(String args[]) {
+        Scanner sc = new Scanner(System.in);
+        int a, b, s = 0;
+        System.out.print("Enter the number : ");
+        a = sc.nextInt();
+        int n = a;
+        while (a > 0) {
+            b = a % 10;
+            s = s + fact(b);
+            a = a / 10;
+        }
+        if (s == n)
+            System.out.print(n + " is a krishnamurthy number");
+        else
+            System.out.print(n + " is not a krishnamurthy number");
+        sc.close();
+    }
+}
+
+package Others;
+
+/***
+ * A pseudorandom number generator.
+ *
+ * @author Tobias Carryer
+ * @date October 10, 2017
+ */
+public class LinearCongruentialGenerator {
+
+    private double a, c, m, previousValue;
+
+    /***
+     * These parameters are saved and used when nextNumber() is called.
+     * The current timestamp in milliseconds is used as the seed.
+     *
+     * @param multiplier
+     * @param increment
+     * @param modulo The maximum number that can be generated (exclusive). A common value is 2^32.
+     */
+    public LinearCongruentialGenerator(double multiplier, double increment, double modulo) {
+        this(System.currentTimeMillis(), multiplier, increment, modulo);
+    }
+
+    /***
+     * These parameters are saved and used when nextNumber() is called.
+     *
+     * @param seed
+     * @param multiplier
+     * @param increment
+     * @param modulo The maximum number that can be generated (exclusive). A common value is 2^32.
+     */
+    public LinearCongruentialGenerator(double seed, double multiplier, double increment, double modulo) {
+        this.previousValue = seed;
+        this.a = multiplier;
+        this.c = increment;
+        this.m = modulo;
+    }
+
+    /**
+     * The smallest number that can be generated is zero.
+     * The largest number that can be generated is modulo-1. modulo is set in the constructor.
+     *
+     * @return a pseudorandom number.
+     */
+    public double nextNumber() {
+        previousValue = (a * previousValue + c) % m;
+        return previousValue;
+    }
+
+    public static void main(String[] args) {
+        // Show the LCG in action.
+        // Decisive proof that the LCG works could be made by adding each number
+        // generated to a Set while checking for duplicates.
+        LinearCongruentialGenerator lcg = new LinearCongruentialGenerator(1664525, 1013904223, Math.pow(2.0, 32.0));
+        for (int i = 0; i < 512; i++) {
+            System.out.println(lcg.nextNumber());
+        }
+    }
+}
+
+package Others;
+
+import java.util.InputMismatchException;
+import java.util.Scanner;
+
+/**
+ * Class for finding the lowest base in which a given integer is a palindrome.
+ * Includes auxiliary methods for converting between bases and reversing strings.
+ * <p>
+ * NOTE: There is potential for error, see note at line 63.
+ *
+ * @author RollandMichael
+ * @version 2017.09.28
+ */
+public class LowestBasePalindrome {
+
+    public static void main(String[] args) {
+        Scanner in = new Scanner(System.in);
+        int n = 0;
+        while (true) {
+            try {
+                System.out.print("Enter number: ");
+                n = in.nextInt();
+                break;
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid input!");
+                in.next();
+            }
+        }
+        System.out.println(n + " is a palindrome in base " + lowestBasePalindrome(n));
+        System.out.println(base2base(Integer.toString(n), 10, lowestBasePalindrome(n)));
+        in.close();
+    }
+
+    /**
+     * Given a number in base 10, returns the lowest base in which the
+     * number is represented by a palindrome (read the same left-to-right
+     * and right-to-left).
+     *
+     * @param num A number in base 10.
+     * @return The lowest base in which num is a palindrome.
+     */
+    public static int lowestBasePalindrome(int num) {
+        int base, num2 = num;
+        int digit;
+        char digitC;
+        boolean foundBase = false;
+        String newNum = "";
+        String digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+        while (!foundBase) {
+            // Try from bases 2 to num-1
+            for (base = 2; base < num2; base++) {
+                newNum = "";
+                while (num > 0) {
+                    // Obtain the first digit of n in the current base,
+                    // which is equivalent to the integer remainder of (n/base).
+                    // The next digit is obtained by dividing n by the base and
+                    // continuing the process of getting the remainder. This is done
+                    // until n is <=0 and the number in the new base is obtained.
+                    digit = (num % base);
+                    num /= base;
+                    // If the digit isn't in the set of [0-9][A-Z] (beyond base 36), its character
+                    // form is just its value in ASCII.
+
+                    // NOTE: This may cause problems, as the capital letters are ASCII values
+                    // 65-90. It may cause false positives when one digit is, for instance 10 and assigned
+                    // 'A' from the character array and the other is 65 and also assigned 'A'.
+
+                    // Regardless, the character is added to the representation of n
+                    // in the current base.
+                    if (digit >= digits.length()) {
+                        digitC = (char) (digit);
+                        newNum += digitC;
+                        continue;
+                    }
+                    newNum += digits.charAt(digit);
+                }
+                // Num is assigned back its original value for the next iteration.
+                num = num2;
+                // Auxiliary method reverses the number.
+                String reverse = reverse(newNum);
+                // If the number is read the same as its reverse, then it is a palindrome.
+                // The current base is returned.
+                if (reverse.equals(newNum)) {
+                    foundBase = true;
+                    return base;
+                }
+            }
+        }
+        // If all else fails, n is always a palindrome in base n-1. ("11")
+        return num - 1;
+    }
+
+    private static String reverse(String str) {
+        String reverse = "";
+        for (int i = str.length() - 1; i >= 0; i--) {
+            reverse += str.charAt(i);
+        }
+        return reverse;
+    }
+
+    private static String base2base(String n, int b1, int b2) {
+        // Declare variables: decimal value of n,
+        // character of base b1, character of base b2,
+        // and the string that will be returned.
+        int decimalValue = 0, charB2;
+        char charB1;
+        String output = "";
+        // Go through every character of n
+        for (int i = 0; i < n.length(); i++) {
+            // store the character in charB1
+            charB1 = n.charAt(i);
+            // if it is a non-number, convert it to a decimal value >9 and store it in charB2
+            if (charB1 >= 'A' && charB1 <= 'Z')
+                charB2 = 10 + (charB1 - 'A');
+                // Else, store the integer value in charB2
+            else
+                charB2 = charB1 - '0';
+            // Convert the digit to decimal and add it to the
+            // decimalValue of n
+            decimalValue = decimalValue * b1 + charB2;
+        }
+
+        // Converting the decimal value to base b2:
+        // A number is converted from decimal to another base
+        // by continuously dividing by the base and recording
+        // the remainder until the quotient is zero. The number in the
+        // new base is the remainders, with the last remainder
+        // being the left-most digit.
+
+        // While the quotient is NOT zero:
+        while (decimalValue != 0) {
+            // If the remainder is a digit < 10, simply add it to
+            // the left side of the new number.
+            if (decimalValue % b2 < 10)
+                output = Integer.toString(decimalValue % b2) + output;
+                // If the remainder is >= 10, add a character with the
+                // corresponding value to the new number. (A = 10, B = 11, C = 12, ...)
+            else
+                output = (char) ((decimalValue % b2) + 55) + output;
+            // Divide by the new base again
+            decimalValue /= b2;
+        }
+        return output;
+    }
+}
+
+package Others;
+
+class Palindrome {
+
+    private String reverseString(String x) { // *helper method
+        StringBuilder output = new StringBuilder(x);
+        return output.reverse().toString();
+    }
+
+    public boolean FirstWay(String x) { // *palindrome method, returns true if palindrome
+        if (x == null || x.length() <= 1)
+            return true;
+        return x.equalsIgnoreCase(reverseString(x));
+    }
+
+    public boolean SecondWay(String x) {
+        if (x.length() == 0 || x.length() == 1)
+            return true;
+
+        if (x.charAt(0) != x.charAt(x.length() - 1))
+            return false;
+
+        return SecondWay(x.substring(1, x.length() - 1));
+    }
+
+    /**
+     * This method ignores all non-alphanumeric characters and case runs in O(n)
+     * where n is the length of s
+     * 
+     * @param s String to check
+     * @return true if s is palindrome else false
+     */
+    public boolean isPalindrome(String s) {
+        s = s.toLowerCase().trim();
+        StringBuilder sb = new StringBuilder();
+        for (char c : s.toCharArray()) {
+            if (Character.isLetter(c) || Character.isDigit(c))
+                sb.append(c);
+        }
+        s = sb.toString();
+        int start = 0;
+        int end = s.length() - 1;
+        while (start <= end) {
+            if (s.charAt(start++) != s.charAt(end--))
+                return false;
+
+        }
+        return true;
+    }
+}
+
+package Others;
+
+import java.util.Collections;
+import java.util.Random;
+import java.util.List;
+import java.util.ArrayList;
+
+
+/**
+ * Creates a random password from ASCII letters
+ * Given password length bounds
+ *
+ * @author AKS1996
+ * @date 2017.10.25
+ */
+class PasswordGen {
+    public static void main(String args[]) {
+        String password = generatePassword(8, 16);
+        System.out.print("Password: " + password);
+    }
+
+    static String generatePassword(int min_length, int max_length) {
+        Random random = new Random();
+
+        String upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        String lower = "abcdefghijklmnopqrstuvwxyz";
+        String numbers = "0123456789";
+        String specialChars = "!@#$%^&*(){}?";
+
+        String allChars = upper + lower + numbers + specialChars;
+
+        List<Character> letters = new ArrayList<Character>();
+        for (char c : allChars.toCharArray())
+            letters.add(c);
+
+        // Inbuilt method to randomly shuffle a elements of a list
+        Collections.shuffle(letters);
+        String password = "";
+
+        // Note that size of the password is also random
+        for (int i = random.nextInt(max_length - min_length) + min_length; i > 0; --i) {
+            password += letters.get(random.nextInt(letters.size()));
+        }
+
+        return password;
+    }
+}
+
+package Others;
+
+import java.util.Random;
+import java.util.Scanner;
+
+/**
+ * For detailed info and implementation see: <a href="http://devmag.org.za/2009/04/25/perlin-noise/">Perlin-Noise</a>
+ */
+public class PerlinNoise {
+    /**
+     * @param width       width of noise array
+     * @param height      height of noise array
+     * @param octaveCount numbers of layers used for blending noise
+     * @param persistence value of impact each layer get while blending
+     * @param seed        used for randomizer
+     * @return float array containing calculated "Perlin-Noise" values
+     */
+    static float[][] generatePerlinNoise(int width, int height, int octaveCount, float persistence, long seed) {
+        final float[][] base = new float[width][height];
+        final float[][] perlinNoise = new float[width][height];
+        final float[][][] noiseLayers = new float[octaveCount][][];
+
+        Random random = new Random(seed);
+        //fill base array with random values as base for noise
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                base[x][y] = random.nextFloat();
+            }
+        }
+
+        //calculate octaves with different roughness
+        for (int octave = 0; octave < octaveCount; octave++) {
+            noiseLayers[octave] = generatePerlinNoiseLayer(base, width, height, octave);
+        }
+
+        float amplitude = 1f;
+        float totalAmplitude = 0f;
+
+        //calculate perlin noise by blending each layer together with specific persistence
+        for (int octave = octaveCount - 1; octave >= 0; octave--) {
+            amplitude *= persistence;
+            totalAmplitude += amplitude;
+
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height; y++) {
+                    //adding each value of the noise layer to the noise
+                    //by increasing amplitude the rougher noises will have more impact
+                    perlinNoise[x][y] += noiseLayers[octave][x][y] * amplitude;
+                }
+            }
+        }
+
+        //normalize values so that they stay between 0..1
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                perlinNoise[x][y] /= totalAmplitude;
+            }
+        }
+
+        return perlinNoise;
+    }
+
+    /**
+     * @param base   base random float array
+     * @param width  width of noise array
+     * @param height height of noise array
+     * @param octave current layer
+     * @return float array containing calculated "Perlin-Noise-Layer" values
+     */
+    static float[][] generatePerlinNoiseLayer(float[][] base, int width, int height, int octave) {
+        float[][] perlinNoiseLayer = new float[width][height];
+
+        //calculate period (wavelength) for different shapes
+        int period = 1 << octave; //2^k
+        float frequency = 1f / period; // 1/2^k
+
+        for (int x = 0; x < width; x++) {
+            //calculates the horizontal sampling indices
+            int x0 = (x / period) * period;
+            int x1 = (x0 + period) % width;
+            float horizintalBlend = (x - x0) * frequency;
+
+            for (int y = 0; y < height; y++) {
+                //calculates the vertical sampling indices
+                int y0 = (y / period) * period;
+                int y1 = (y0 + period) % height;
+                float verticalBlend = (y - y0) * frequency;
+
+                //blend top corners
+                float top = interpolate(base[x0][y0], base[x1][y0], horizintalBlend);
+
+                //blend bottom corners
+                float bottom = interpolate(base[x0][y1], base[x1][y1], horizintalBlend);
+
+                //blend top and bottom interpolation to get the final blend value for this cell
+                perlinNoiseLayer[x][y] = interpolate(top, bottom, verticalBlend);
+            }
+        }
+
+        return perlinNoiseLayer;
+    }
+
+    /**
+     * @param a     value of point a
+     * @param b     value of point b
+     * @param alpha determine which value has more impact (closer to 0 -> a, closer to 1 -> b)
+     * @return interpolated value
+     */
+    static float interpolate(float a, float b, float alpha) {
+        return a * (1 - alpha) + alpha * b;
+    }
+
+    public static void main(String[] args) {
+        Scanner in = new Scanner(System.in);
+
+        final int width;
+        final int height;
+        final int octaveCount;
+        final float persistence;
+        final long seed;
+        final String charset;
+        final float[][] perlinNoise;
+
+        System.out.println("Width (int): ");
+        width = in.nextInt();
+
+        System.out.println("Height (int): ");
+        height = in.nextInt();
+
+        System.out.println("Octave count (int): ");
+        octaveCount = in.nextInt();
+
+        System.out.println("Persistence (float): ");
+        persistence = in.nextFloat();
+
+        System.out.println("Seed (long): ");
+        seed = in.nextLong();
+
+        System.out.println("Charset (String): ");
+        charset = in.next();
+
+
+        perlinNoise = generatePerlinNoise(width, height, octaveCount, persistence, seed);
+        final char[] chars = charset.toCharArray();
+        final int length = chars.length;
+        final float step = 1f / length;
+        //output based on charset
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                float value = step;
+                float noiseValue = perlinNoise[x][y];
+
+                for (char c : chars) {
+                    if (noiseValue <= value) {
+                        System.out.print(c);
+                        break;
+                    }
+
+                    value += step;
+                }
+            }
+
+            System.out.println();
+        }
+        in.close();
+    }
+}
+
+package Others;
+
+import java.util.Scanner;
+
+/**
+ * A utility to check if a given number is power of two or not.
+ * For example 8,16 etc.
+ */
+
+public class PowerOfTwoOrNot {
+
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Enter the number");
+        int num = sc.nextInt();
+        boolean isPowerOfTwo = checkIfPowerOfTwoOrNot(num);
+        if (isPowerOfTwo) {
+            System.out.println("Number is a power of two");
+        } else {
+            System.out.println("Number is not a power of two");
+        }
+        sc.close();
+    }
+
+
+    /**
+     * Checks whether given number is power of two or not.
+     *
+     * @param number
+     * @return boolean
+     */
+    public static boolean checkIfPowerOfTwoOrNot(int number) {
+        return number != 0 && ((number & (number - 1)) == 0);
+    }
+}
+
+package Others;
+
+import java.util.Stack;
+
+/**
+ * This implements Queue using two Stacks.
+ *
+ * Big O Runtime:
+ *      insert(): O(1)
+ *      remove(): O(1) amortized
+ *      isEmpty(): O(1)
+ *
+ * A queue data structure functions the same as a real world queue.
+ * The elements that are added first are the first to be removed.
+ * New elements are added to the back/rear of the queue.
+ *
+ * @author sahilb2 (https://www.github.com/sahilb2)
+ *
+ */
+class QueueWithStack {
+
+    // Stack to keep track of elements inserted into the queue
+    private Stack inStack;
+    // Stack to keep track of elements to be removed next in queue
+    private Stack outStack;
+
+    /**
+	 * Constructor
+	 */
+    public QueueWithStack() {
+        this.inStack = new Stack();
+        this.outStack = new Stack();
+    }
+
+    /**
+     * Inserts an element at the rear of the queue
+     *
+     * @param x element to be added
+     */
+    public void insert(Object x) {
+        // Insert element into inStack
+        this.inStack.push(x);
+    }
+
+    /**
+     * Remove an element from the front of the queue
+     *
+     * @return the new front of the queue
+     */
+    public Object remove() {
+        if(this.outStack.isEmpty()) {
+            // Move all elements from inStack to outStack (preserving the order)
+            while(!this.inStack.isEmpty()) {
+                this.outStack.push( this.inStack.pop() );
+            }
+        }
+        return this.outStack.pop();
+    }
+
+    /**
+     * Peek at the element from the front of the queue
+     *
+     * @return the front element of the queue
+     */
+    public Object peekFront() {
+        if(this.outStack.isEmpty()) {
+            // Move all elements from inStack to outStack (preserving the order)
+            while(!this.inStack.isEmpty()) {
+                this.outStack.push( this.inStack.pop() );
+            }
+        }
+        return this.outStack.peek();
+    }
+
+    /**
+     * Peek at the element from the back of the queue
+     *
+     * @return the back element of the queue
+     */
+    public Object peekBack() {
+        return this.inStack.peek();
+    }
+
+    /**
+     * Returns true if the queue is empty
+     *
+     * @return true if the queue is empty
+     */
+    public boolean isEmpty() {
+        return (this.inStack.isEmpty() && this.outStack.isEmpty());
+    }
+
+}
+
+/**
+ * This class is the example for the Queue class
+ *
+ * @author sahilb2 (https://www.github.com/sahilb2)
+ *
+ */
+public class QueueUsingTwoStacks {
+
+    /**
+     * Main method
+     *
+     * @param args Command line arguments
+     */
+    public static void main(String args[]){
+        QueueWithStack myQueue = new QueueWithStack();
+        myQueue.insert(1);
+        System.out.println(myQueue.peekBack()); //Will print 1
+        // instack: [(top) 1]
+        // outStack: []
+        myQueue.insert(2);
+        System.out.println(myQueue.peekBack()); //Will print 2
+        // instack: [(top) 2, 1]
+        // outStack: []
+        myQueue.insert(3);
+        System.out.println(myQueue.peekBack()); //Will print 3
+        // instack: [(top) 3, 2, 1]
+        // outStack: []
+        myQueue.insert(4);
+        System.out.println(myQueue.peekBack()); //Will print 4
+        // instack: [(top) 4, 3, 2, 1]
+        // outStack: []
+
+        System.out.println(myQueue.isEmpty()); //Will print false
+
+        System.out.println(myQueue.remove()); //Will print 1
+        System.out.println(myQueue.peekBack()); //Will print NULL
+        // instack: []
+        // outStack: [(top) 2, 3, 4]
+
+        myQueue.insert(5);
+        System.out.println(myQueue.peekFront()); //Will print 2
+        // instack: [(top) 5]
+        // outStack: [(top) 2, 3, 4]
+
+        myQueue.remove();
+        System.out.println(myQueue.peekFront()); //Will print 3
+        // instack: [(top) 5]
+        // outStack: [(top) 3, 4]
+        myQueue.remove();
+        System.out.println(myQueue.peekFront()); //Will print 4
+        // instack: [(top) 5]
+        // outStack: [(top) 4]
+        myQueue.remove();
+        // instack: [(top) 5]
+        // outStack: []
+        System.out.println(myQueue.peekFront()); //Will print 5
+        // instack: []
+        // outStack: [(top) 5]
+        myQueue.remove();
+        // instack: []
+        // outStack: []
+
+        System.out.println(myQueue.isEmpty()); //Will print true
+
+    }
+}
+
+package Others;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
+/**
+ * @author Varun Upadhyay (https://github.com/varunu28)
+ */
+
+public class RemoveDuplicateFromString {
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String inpStr = br.readLine();
+
+        System.out.println("Actual string is: " + inpStr);
+        System.out.println("String after removing duplicates: " + removeDuplicate(inpStr));
+
+        br.close();
+    }
+
+    /**
+     * This method produces a string after removing all the duplicate characters from input string and returns it
+     * Example: Input String - "aabbbccccddddd"
+     * Output String - "abcd"
+     *
+     * @param s String from which duplicate characters have to be removed
+     * @return string with only unique characters
+     */
+
+    public static String removeDuplicate(String s) {
+        if (s == null || s.isEmpty()) {
+            return s;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        int n = s.length();
+
+        for (int i = 0; i < n; i++) {
+            if (sb.toString().indexOf(s.charAt(i)) == -1) {
+                sb.append(String.valueOf(s.charAt(i)));
+            }
+        }
+
+        return sb.toString();
+    }
+}
+
+package Others;
+
+import java.util.Scanner;
+
+public class ReturnSubsequence {
+    public static void main(String[] args) {
+        System.out.println("Enter String: ");
+        Scanner s = new Scanner(System.in);
+        String givenString = s.next(); //given string
+        String[] subsequence = returnSubsequence(givenString); //calling returnSubsequence() function
+        System.out.println("Subsequences : ");
+        //print the given array of subsequences
+        for (int i = 0; i < subsequence.length; i++) {
+            System.out.println(subsequence[i]);
+        }
+        s.close();
+    }
+
+    /**
+     * @param givenString
+     * @return subsequence
+     */
+    private static String[] returnSubsequence(String givenString) {
+        if (givenString.length() == 0) // If string is empty we will create an array of size=1 and insert "" (Empty string) in it
+        {
+            String[] ans = new String[1];
+            ans[0] = "";
+            return ans;
+
+        }
+        String[] SmallAns = returnSubsequence(givenString.substring(1)); //recursive call to get subsequences of substring starting from index position=1
+
+        String[] ans = new String[2 * SmallAns.length];// Our answer will be an array off string of size=2*SmallAns
+        int i = 0;
+        for (; i < SmallAns.length; i++) {
+            ans[i] = SmallAns[i]; //Copying all the strings present in SmallAns to ans string array
+        }
+        for (int k = 0; k < SmallAns.length; k++) {
+            ans[k + SmallAns.length] = givenString.charAt(0) + SmallAns[k]; // Insert character at index=0 of the given substring in front of every string in SmallAns
+        }
+        return ans;
+    }
+}
+
+package Others;
+
+/* Program to reverse a Stack using Recursion*/
+
+
+import java.util.Stack;
+
+public class ReverseStackUsingRecursion {
+
+    //Stack
+    private static Stack<Integer> stack = new Stack<>();
+
+    //Main function
+    public static void main(String[] args) {
+        //To Create a Dummy Stack containing integers from 0-9
+        for (int i = 0; i < 10; i++) {
+            stack.push(i);
+        }
+        System.out.println("STACK");
+
+        //To print that dummy Stack
+        for (int k = 9; k >= 0; k--) {
+            System.out.println(k);
+        }
+
+        //Reverse Function called
+        reverseUsingRecursion(stack);
+
+        System.out.println("REVERSED STACK : ");
+        //To print reversed  stack
+        while (!stack.isEmpty()) {
+            System.out.println(stack.pop());
+        }
+
+
+    }
+
+    //Function Used to reverse Stack Using Recursion
+    private static void reverseUsingRecursion(Stack<Integer> stack) {
+        if (stack.isEmpty()) // If stack is empty then return
+        {
+            return;
+        }
+        /* All items are stored in call stack until we reach the end*/
+
+        int temptop = stack.peek();
+        stack.pop();
+        reverseUsingRecursion(stack); //Recursion call
+        insertAtEnd(temptop); // Insert items held in call stack one by one into stack
+    }
+
+    //Function used to insert element at the end of stack
+    private static void insertAtEnd(int temptop) {
+        if (stack.isEmpty()) {
+            stack.push(temptop); // If stack is empty push the element
+        } else {
+            int temp = stack.peek(); /* All the items are stored in call stack until we reach end*/
+            stack.pop();
+
+            insertAtEnd(temptop); //Recursive call
+
+            stack.push(temp);
+        }
+
+    }
+
+}
+
+package Others;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+/**
+ * This method produces a reversed version of a string
+ *
+ * @author Unknown
+ */
+public class ReverseString {
+
+    /**
+     * This method reverses the string str and returns it
+     *
+     * @param str String to be reversed
+     * @return Reversed string
+     */
+    public static String reverse(String str) {
+        if (str == null || str.isEmpty()) return str;
+
+        char[] arr = str.toCharArray();
+        for (int i = 0, j = str.length() - 1; i < j; i++, j--) {
+            char temp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = temp;
+        }
+        return new String(arr);
+    }
+
+    /**
+     * Main Method
+     *
+     * @param args Command line arguments
+     * @throws IOException Exception thrown because of BufferedReader
+     */
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        System.out.println("Enter the string");
+        String srr = br.readLine();
+        System.out.println("Reverse=" + reverse(srr));
+        br.close();
+    }
+}
+		
+
+package Others;
+
+import java.util.Scanner;
+
+public class RootPrecision {
+
+    public static void main(String[] args) {
+        // take input
+        Scanner scn = new Scanner(System.in);
+
+        // N is the input number
+        int N = scn.nextInt();
+
+        // P is precision value for eg - P is 3 in 2.564 and 5 in 3.80870.
+        int P = scn.nextInt();
+        System.out.println(squareRoot(N, P));
+
+        scn.close();
+    }
+
+    public static double squareRoot(int N, int P) {
+        // rv means return value
+        double rv;
+
+        double root = Math.pow(N, 0.5);
+
+        // calculate precision to power of 10 and then multiply it with root value.
+        int precision = (int) Math.pow(10, P);
+        root = root * precision;
+	    /*typecast it into integer then divide by precision and again typecast into double
+	   so as to have decimal points upto P precision */
+
+        rv = (int) root;
+        return rv / precision;
+    }
+}
+package Others;
+
+/**
+ * @author Varun Upadhyay (https://github.com/varunu28)
+ */
+public class SieveOfEratosthenes {
+
+    /**
+     * This method implements the Sieve of Eratosthenes Algorithm
+     *
+     * @param n The number till which we have to check for prime
+     *          Prints all the prime numbers till n
+     **/
+
+    public static void findPrimesTillN(int n) {
+        int[] arr = new int[n + 1];
+
+        for (int i = 0; i <= n; i++) {
+            arr[i] = 1;
+        }
+
+        arr[0] = arr[1] = 0;
+
+        for (int i = 2; i <= Math.sqrt(n); i++) {
+            if (arr[i] == 1) {
+                for (int j = 2; i * j <= n; j++) {
+                    arr[i * j] = 0;
+                }
+            }
+        }
+
+        for (int i = 0; i < n + 1; i++) {
+            if (arr[i] == 1) {
+                System.out.print(i + " ");
+            }
+        }
+
+        System.out.println();
+    }
+
+    // Driver Program
+    public static void main(String[] args) {
+        int n = 100;
+
+        // Prints 2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97 
+        findPrimesTillN(n);
+    }
+
+}
+
+package Others;
+/**
+ * <h2>Shortest job first.</h2>
+ * <p>Shortest job first (SJF) or shortest job next, is a scheduling policy
+ * that selects the waiting process with the smallest execution time to execute next
+ * Shortest Job first has the advantage of having minimum average waiting time among all scheduling algorithms.
+ * It is a Greedy Algorithm.
+ * It may cause starvation if shorter processes keep coming.
+ * This problem has been solved using the concept of aging.</p>
+ *
+ * @author shivg7706
+ * @since 2018/10/27
+ */
+
+import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.*;
+
+class Process {
+
+    public int pid;
+    public int arrivalTime;
+    public int burstTime;
+    public int priority;
+    public int turnAroundTime;
+    public int waitTime;
+    public int remainingTime;
+}
+
+class Schedule {
+
+    private int noOfProcess;
+    private int timer = 0;
+    private ArrayList<Process> processes;
+    private ArrayList<Process> remainingProcess;
+    private ArrayList<Integer> gantChart;
+    private float burstAll;
+    private Map<Integer, ArrayList<Process>> arrivals;
+
+    Schedule() {
+        Scanner in = new Scanner(System.in);
+
+        processes = new ArrayList<Process>();
+        remainingProcess = new ArrayList<Process>();
+
+        gantChart = new ArrayList<>();
+        arrivals = new HashMap<>();
+
+        System.out.print("Enter the no. of processes: ");
+        noOfProcess = in.nextInt();
+        System.out.println("Enter the arrival, burst and priority of processes");
+        for (int i = 0; i < noOfProcess; i++) {
+            Process p = new Process();
+            p.pid = i;
+            p.arrivalTime = in.nextInt();
+            p.burstTime = in.nextInt();
+            p.priority = in.nextInt();
+            p.turnAroundTime = 0;
+            p.waitTime = 0;
+            p.remainingTime = p.burstTime;
+
+            if (arrivals.get(p.arrivalTime) == null) {
+                arrivals.put(p.arrivalTime, new ArrayList<Process>());
+            }
+            arrivals.get(p.arrivalTime).add(p);
+            processes.add(p);
+            burstAll += p.burstTime;
+        }
+        in.close();
+
+    }
+
+
+    void startScheduling() {
+
+
+        processes.sort(new Comparator<Process>() {
+            @Override
+            public int compare(Process a, Process b) {
+                return a.arrivalTime - b.arrivalTime;
+            }
+        });
+
+        while (!(arrivals.size() == 0 && remainingProcess.size() == 0)) {
+            removeFinishedProcess();
+            if (arrivals.get(timer) != null) {
+                remainingProcess.addAll(arrivals.get(timer));
+                arrivals.remove(timer);
+            }
+
+            remainingProcess.sort(new Comparator<Process>() {
+                private int alpha = 6;
+                private int beta = 1;
+
+                @Override
+                public int compare(Process a, Process b) {
+                    int aRem = a.remainingTime;
+                    int bRem = b.remainingTime;
+                    int aprior = a.priority;
+                    int bprior = b.priority;
+                    return (alpha * aRem + beta * aprior) - (alpha * bRem + beta * bprior);
+                }
+            });
+
+            int k = timeElapsed(timer);
+            ageing(k);
+            timer++;
+        }
+
+        System.out.println("Total time required: " + (timer - 1));
+    }
+
+    void removeFinishedProcess() {
+        ArrayList<Integer> completed = new ArrayList<Integer>();
+        for (int i = 0; i < remainingProcess.size(); i++) {
+            if (remainingProcess.get(i).remainingTime == 0) {
+                completed.add(i);
+            }
+        }
+
+        for (int i = 0; i < completed.size(); i++) {
+            int pid = remainingProcess.get(completed.get(i)).pid;
+            processes.get(pid).waitTime = remainingProcess.get(completed.get(i)).waitTime;
+            remainingProcess.remove(remainingProcess.get(completed.get(i)));
+        }
+
+
+    }
+
+    public int timeElapsed(int i) {
+        if (!remainingProcess.isEmpty()) {
+            gantChart.add(i, remainingProcess.get(0).pid);
+            remainingProcess.get(0).remainingTime--;
+            return 1;
+        }
+        return 0;
+    }
+
+    public void ageing(int k) {
+        for (int i = k; i < remainingProcess.size(); i++) {
+            remainingProcess.get(i).waitTime++;
+            if (remainingProcess.get(i).waitTime % 7 == 0) {
+                remainingProcess.get(i).priority--;
+            }
+        }
+    }
+
+
+    public void solve() {
+        System.out.println("Gant chart ");
+        for (int i = 0; i < gantChart.size(); i++) {
+            System.out.print(gantChart.get(i) + " ");
+        }
+        System.out.println();
+
+        float waitTimeTot = 0;
+        float tatTime = 0;
+
+        for (int i = 0; i < noOfProcess; i++) {
+            processes.get(i).turnAroundTime = processes.get(i).waitTime + processes.get(i).burstTime;
+
+            waitTimeTot += processes.get(i).waitTime;
+            tatTime += processes.get(i).turnAroundTime;
+
+            System.out.println("Process no.: " + i + " Wait time: " + processes.get(i).waitTime + " Turn Around Time: " + processes.get(i).turnAroundTime);
+        }
+
+        System.out.println("Average Waiting Time: " + waitTimeTot / noOfProcess);
+        System.out.println("Average TAT Time: " + tatTime / noOfProcess);
+        System.out.println("Throughput: " + (float) noOfProcess / (timer - 1));
+    }
+
+}
+
+public class SJF {
+    public static void main(String[] args) {
+        Schedule s = new Schedule();
+        s.startScheduling();
+        s.solve();
+    }
+}
+package Others;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Scanner;
+
+public class SkylineProblem {
+    Building[] building;
+    int count;
+
+    public void run() {
+        Scanner sc = new Scanner(System.in);
+
+        int num = sc.nextInt();
+        this.building = new Building[num];
+
+        for (int i = 0; i < num; i++) {
+            String input = sc.next();
+            String[] data = input.split(",");
+            this.add(Integer.parseInt(data[0]), Integer.parseInt(data[1]), Integer.parseInt(data[2]));
+        }
+        this.print(this.findSkyline(0, num - 1));
+
+        sc.close();
+    }
+
+    public void add(int left, int height, int right) {
+        building[count++] = new Building(left, height, right);
+    }
+
+    public void print(ArrayList<Skyline> skyline) {
+        Iterator<Skyline> it = skyline.iterator();
+
+        while (it.hasNext()) {
+            Skyline temp = it.next();
+            System.out.print(temp.coordinates + "," + temp.height);
+            if (it.hasNext()) {
+                System.out.print(",");
+            }
+        }
+
+    }
+
+    public ArrayList<Skyline> findSkyline(int start, int end) {
+        if (start == end) {
+            ArrayList<Skyline> list = new ArrayList<>();
+            list.add(new Skyline(building[start].left, building[start].height));
+            list.add(new Skyline(building[end].right, 0));
+
+            return list;
+        }
+
+        int mid = (start + end) / 2;
+
+        ArrayList<Skyline> sky1 = this.findSkyline(start, mid);
+        ArrayList<Skyline> sky2 = this.findSkyline(mid + 1, end);
+
+        return this.mergeSkyline(sky1, sky2);
+    }
+
+    public ArrayList<Skyline> mergeSkyline(ArrayList<Skyline> sky1, ArrayList<Skyline> sky2) {
+        int currentH1 = 0, currentH2 = 0;
+        ArrayList<Skyline> skyline = new ArrayList<>();
+        int maxH = 0;
+
+        while (!sky1.isEmpty() && !sky2.isEmpty()) {
+            if (sky1.get(0).coordinates < sky2.get(0).coordinates) {
+                int currentX = sky1.get(0).coordinates;
+                currentH1 = sky1.get(0).height;
+
+                if (currentH1 < currentH2) {
+                    sky1.remove(0);
+                    if (maxH != currentH2) skyline.add(new Skyline(currentX, currentH2));
+                } else {
+                    maxH = currentH1;
+                    sky1.remove(0);
+                    skyline.add(new Skyline(currentX, currentH1));
+                }
+            } else {
+                int currentX = sky2.get(0).coordinates;
+                currentH2 = sky2.get(0).height;
+
+                if (currentH2 < currentH1) {
+                    sky2.remove(0);
+                    if (maxH != currentH1) skyline.add(new Skyline(currentX, currentH1));
+                } else {
+                    maxH = currentH2;
+                    sky2.remove(0);
+                    skyline.add(new Skyline(currentX, currentH2));
+                }
+            }
+        }
+
+        while (!sky1.isEmpty()) {
+            skyline.add(sky1.get(0));
+            sky1.remove(0);
+        }
+
+        while (!sky2.isEmpty()) {
+            skyline.add(sky2.get(0));
+            sky2.remove(0);
+        }
+
+        return skyline;
+    }
+
+    public class Skyline {
+        public int coordinates;
+        public int height;
+
+        public Skyline(int coordinates, int height) {
+            this.coordinates = coordinates;
+            this.height = height;
+        }
+    }
+
+    public class Building {
+        public int left;
+        public int height;
+        public int right;
+
+        public Building(int left, int height, int right) {
+            this.left = left;
+            this.height = height;
+            this.right = right;
+        }
+    }
+
+    public static void main(String[] args) {
+        SkylineProblem skylineProblem = new SkylineProblem();
+        skylineProblem.run();
+    }
+}
+
+package Others;
+
+import java.util.*;
+
+public class StackPostfixNotation {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        String post = scanner.nextLine();   // Takes input with spaces in between eg. "1 21 +"
+        System.out.println(postfixEvaluate(post));
+        scanner.close();
+    }
+
+    // Evaluates the given postfix expression string and returns the result.
+    public static int postfixEvaluate(String exp) {
+        Stack<Integer> s = new Stack<Integer>();
+        Scanner tokens = new Scanner(exp);
+
+        while (tokens.hasNext()) {
+            if (tokens.hasNextInt()) {
+                s.push(tokens.nextInt()); // If int then push to stack
+            } else {    // else pop top two values and perform the operation
+                int num2 = s.pop();
+                int num1 = s.pop();
+                String op = tokens.next();
+
+                if (op.equals("+")) {
+                    s.push(num1 + num2);
+                } else if (op.equals("-")) {
+                    s.push(num1 - num2);
+                } else if (op.equals("*")) {
+                    s.push(num1 * num2);
+                } else {
+                    s.push(num1 / num2);
+                }
+
+                //  "+", "-", "*", "/"
+            }
+        }
+        tokens.close();
+        return s.pop();
+    }
+}
+
+package Others;
+
+import java.io.*;
+import java.util.*;
+
+/* display the most frequent K words in the file and the times it appear
+    in the file 每 shown in order (ignore case and periods) */
+
+public class TopKWords {
+    static class CountWords {
+        private String fileName;
+
+        public CountWords(String fileName) {
+            this.fileName = fileName;
+        }
+
+        public Map<String, Integer> getDictionary() {
+            Map<String, Integer> dictionary = new HashMap<>();
+            FileInputStream fis = null;
+
+            try {
+
+                fis = new FileInputStream(fileName);  // open the file
+                int in = 0;
+                String s = "";  // init a empty word
+                in = fis.read();  // read one character
+
+                while (-1 != in) {
+                    if (Character.isLetter((char) in)) {
+                        s += (char) in;  //if get a letter, append to s
+                    } else {
+                        // this branch means an entire word has just been read
+                        if (s.length() > 0) {
+                            // see whether word exists or not
+                            if (dictionary.containsKey(s)) {
+                                // if exist, count++
+                                dictionary.put(s, dictionary.get(s) + 1);
+                            } else {
+                                // if not exist, initiate count of this word with 1
+                                dictionary.put(s, 1);
+                            }
+                        }
+                        s = ""; // reInit a empty word
+                    }
+                    in = fis.read();
+                }
+                return dictionary;
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    // you always have to close the I/O streams
+                    fis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return null;
+        }
+    }
+
+    public static void main(String[] args) {
+        // you can replace the filePath with yours
+        CountWords cw = new CountWords("/Users/lisanaaa/Desktop/words.txt");
+        Map<String, Integer> dictionary = cw.getDictionary();  // get the words dictionary: {word: frequency}
+
+        // we change the map to list for convenient sort
+        List<Map.Entry<String, Integer>> list = new ArrayList<>(dictionary.entrySet());
+
+        // sort by lambda valueComparator
+        list.sort(Comparator.comparing(
+                m -> m.getValue())
+        );
+
+        Scanner input = new Scanner(System.in);
+        int k = input.nextInt();
+        while (k > list.size()) {
+            System.out.println("Retype a number, your number is too large");
+            input = new Scanner(System.in);
+            k = input.nextInt();
+        }
+        for (int i = 0; i < k; i++) {
+            System.out.println(list.get(list.size() - i - 1));
+        }
+        input.close();
+    }
+}
+
+
+package Others;
+
+import java.util.Scanner;
+
+class TowerOfHanoi {
+    public static void shift(int n, String startPole, String intermediatePole, String endPole) {
+        // if n becomes zero the program returns thus ending the loop.
+        if (n == 0) {
+            return;
+        }
+
+
+        // Shift function is called in recursion for swapping the n-1 disc from the startPole to the intermediatePole
+        shift(n - 1, startPole, endPole, intermediatePole);
+        System.out.println("\nMove \"" + n + "\" from " + startPole + " --> " + endPole); // Result Printing
+        // Shift function is called in recursion for swapping the n-1 disc from the intermediatePole to the endPole
+        shift(n - 1, intermediatePole, startPole, endPole);
+    }
+
+    public static void main(String[] args) {
+        System.out.print("Enter number of discs on Pole 1: ");
+        Scanner scanner = new Scanner(System.in);
+        int numberOfDiscs = scanner.nextInt(); //input of number of discs on pole 1
+        shift(numberOfDiscs, "Pole1", "Pole2", "Pole3"); //Shift function called
+        scanner.close();
+    }
+}
+
+package Others;
+
+import java.util.ArrayList;
+
+/**
+ * @author Dekas Dimitrios
+ */
+public class WorstFit {
+    private static final int NO_ALLOCATION = -255; // if a process has been allocated in position -255,
+                                                   // it means that it has not been actually allocated.
+
+    /**
+     * Method to find the index of the memory block that is going to fit the given process based on the worst fit algorithm.
+     *
+     * @param blocks: the array with the available memory blocks.
+     * @param process: the size of the process.
+     * @return the index of the block that fits, or -255 if no such block exists.
+     */
+    private static int findWorstFit(int[] blockSizes, int processSize) {
+        int max = -1;
+        int index = -1;
+        for(int i=0 ; i < blockSizes.length ; i++) { // Find the index of the biggest memory block available.
+            if(blockSizes[i] > max) {
+                max = blockSizes[i];
+                index = i;
+            }
+        }
+        // If the biggest memory block cannot fit the process, return -255 as the result
+        if(processSize > blockSizes[index]) {
+            return NO_ALLOCATION;
+        }
+        return index;
+    }
+
+    /**
+     * Method to allocate memory to blocks according to the worst fit
+     * algorithm. It should return an ArrayList of Integers, where the
+     * index is the process ID (zero-indexed) and the value is the block
+     * number (also zero-indexed).
+     *
+     * @param sizeOfBlocks: an int array that contains the sizes of the memory blocks available.
+     * @param sizeOfProcesses: an int array that contains the sizes of the processes we need memory blocks for.
+     * @return the ArrayList filled with Integers repressenting the memory allocation that took place.
+     */
+    static ArrayList<Integer> worstFit(int[] sizeOfBlocks, int[] sizeOfProcesses) {
+        // The array list responsible for saving the memory allocations done by the worst-fit algorithm
+        ArrayList<Integer> memAlloc = new ArrayList<>();
+        // Do this for every process
+        for(int processSize : sizeOfProcesses) {
+            int chosenBlockIdx = findWorstFit(sizeOfBlocks, processSize); // Find the index of the memory block going to be used
+            memAlloc.add(chosenBlockIdx); // Store the chosen block index in the memAlloc array list
+            if(chosenBlockIdx != NO_ALLOCATION) { // Only if a block was chosen to store the process in it,
+                sizeOfBlocks[chosenBlockIdx] -= processSize; // resize the block based on the process size
+            }
+        }
+        return memAlloc;
+    }
+
+    /**
+     * Method to print the memory allocated.
+     *
+     * @param memAllocation: an ArrayList of Integer representing the memory allocation done by the worstFit method.
+     */
+    public static void printMemoryAllocation(ArrayList<Integer> memAllocation) {
+        System.out.println("Process No.\tBlock No.");
+        System.out.println("===========\t=========");
+        for (int i = 0; i < memAllocation.size(); i++) {
+            System.out.print(" " + i + "\t\t");
+            if (memAllocation.get(i) != NO_ALLOCATION)
+                System.out.print(memAllocation.get(i));
+            else
+                System.out.print("Not Allocated");
+            System.out.println();
+        }
+    }
+}

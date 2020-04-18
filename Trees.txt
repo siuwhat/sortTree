@@ -1,0 +1,1588 @@
+package DataStructures.Trees;
+
+public class AVLTree {
+
+    private Node root;
+
+    private class Node {
+        private int key;
+        private int balance;
+        private int height;
+        private Node left, right, parent;
+
+        Node(int k, Node p) {
+            key = k;
+            parent = p;
+        }
+    }
+
+    public boolean insert(int key) {
+        if (root == null)
+            root = new Node(key, null);
+        else {
+            Node n = root;
+            Node parent;
+            while (true) {
+                if (n.key == key)
+                    return false;
+
+                parent = n;
+
+                boolean goLeft = n.key > key;
+                n = goLeft ? n.left : n.right;
+
+                if (n == null) {
+                    if (goLeft) {
+                        parent.left = new Node(key, parent);
+                    } else {
+                        parent.right = new Node(key, parent);
+                    }
+                    rebalance(parent);
+                    break;
+                }
+            }
+        }
+        return true;
+    }
+
+    private void delete(Node node) {
+        if (node.left == null && node.right == null) {
+            if (node.parent == null) root = null;
+            else {
+                Node parent = node.parent;
+                if (parent.left == node) {
+                    parent.left = null;
+                } else parent.right = null;
+                rebalance(parent);
+            }
+            return;
+        }
+        if (node.left != null) {
+            Node child = node.left;
+            while (child.right != null) child = child.right;
+            node.key = child.key;
+            delete(child);
+        } else {
+            Node child = node.right;
+            while (child.left != null) child = child.left;
+            node.key = child.key;
+            delete(child);
+        }
+    }
+
+    public void delete(int delKey) {
+        if (root == null)
+            return;
+        Node node = root;
+        Node child = root;
+
+        while (child != null) {
+            node = child;
+            child = delKey >= node.key ? node.right : node.left;
+            if (delKey == node.key) {
+                delete(node);
+                return;
+            }
+        }
+    }
+
+    private void rebalance(Node n) {
+        setBalance(n);
+
+        if (n.balance == -2) {
+            if (height(n.left.left) >= height(n.left.right))
+                n = rotateRight(n);
+            else
+                n = rotateLeftThenRight(n);
+
+        } else if (n.balance == 2) {
+            if (height(n.right.right) >= height(n.right.left))
+                n = rotateLeft(n);
+            else
+                n = rotateRightThenLeft(n);
+        }
+
+        if (n.parent != null) {
+            rebalance(n.parent);
+        } else {
+            root = n;
+        }
+    }
+
+    private Node rotateLeft(Node a) {
+
+        Node b = a.right;
+        b.parent = a.parent;
+
+        a.right = b.left;
+
+        if (a.right != null)
+            a.right.parent = a;
+
+        b.left = a;
+        a.parent = b;
+
+        if (b.parent != null) {
+            if (b.parent.right == a) {
+                b.parent.right = b;
+            } else {
+                b.parent.left = b;
+            }
+        }
+
+        setBalance(a, b);
+
+        return b;
+    }
+
+    private Node rotateRight(Node a) {
+
+        Node b = a.left;
+        b.parent = a.parent;
+
+        a.left = b.right;
+
+        if (a.left != null)
+            a.left.parent = a;
+
+        b.right = a;
+        a.parent = b;
+
+        if (b.parent != null) {
+            if (b.parent.right == a) {
+                b.parent.right = b;
+            } else {
+                b.parent.left = b;
+            }
+        }
+
+        setBalance(a, b);
+
+        return b;
+    }
+
+    private Node rotateLeftThenRight(Node n) {
+        n.left = rotateLeft(n.left);
+        return rotateRight(n);
+    }
+
+    private Node rotateRightThenLeft(Node n) {
+        n.right = rotateRight(n.right);
+        return rotateLeft(n);
+    }
+
+    private int height(Node n) {
+        if (n == null)
+            return -1;
+        return n.height;
+    }
+
+    private void setBalance(Node... nodes) {
+        for (Node n : nodes) {
+            reheight(n);
+            n.balance = height(n.right) - height(n.left);
+        }
+    }
+
+    public void printBalance() {
+        printBalance(root);
+    }
+
+    private void printBalance(Node n) {
+        if (n != null) {
+            printBalance(n.left);
+            System.out.printf("%s ", n.balance);
+            printBalance(n.right);
+        }
+    }
+
+    private void reheight(Node node) {
+        if (node != null) {
+            node.height = 1 + Math.max(height(node.left), height(node.right));
+        }
+    }
+
+    public static void main(String[] args) {
+        AVLTree tree = new AVLTree();
+
+        System.out.println("Inserting values 1 to 10");
+        for (int i = 1; i < 10; i++)
+            tree.insert(i);
+
+        System.out.print("Printing balance: ");
+        tree.printBalance();
+    }
+}
+
+package DataStructures.Trees;
+
+/**
+ * This entire class is used to build a Binary Tree data structure.
+ * There is the Node Class and the Tree Class, both explained below.
+ */
+
+
+/**
+ * A binary tree is a data structure in which an element
+ * has two successors(children). The left child is usually
+ * smaller than the parent, and the right child is usually
+ * bigger.
+ *
+ * @author Unknown
+ *
+ */
+public class BinaryTree {
+
+    /**
+     * This class implements the nodes that will go on the Binary Tree.
+     * They consist of the data in them, the node to the left, the node
+     * to the right, and the parent from which they came from.
+     *
+     * @author Unknown
+     *
+     */
+    class Node {
+        /** Data for the node */
+        public int data;
+        /** The Node to the left of this one */
+        public Node left;
+        /** The Node to the right of this one */
+        public Node right;
+        /** The parent of this node */
+        public Node parent;
+
+        /**
+         * Constructor of Node
+         *
+         * @param value Value to put in the node
+         */
+        public Node(int value) {
+            data = value;
+            left = null;
+            right = null;
+            parent = null;
+        }
+    }
+
+
+    /** The root of the Binary Tree */
+    private Node root;
+
+    /**
+     * Constructor
+     */
+    public BinaryTree() {
+        root = null;
+    }
+
+    /**
+     * Method to find a Node with a certain value
+     *
+     * @param key Value being looked for
+     * @return The node if it finds it, otherwise returns the parent
+     */
+    public Node find(int key) {
+        Node current = root;
+        while (current != null) {
+            if (key < current.data) {
+                if (current.left == null)
+                    return current;    //The key isn't exist, returns the parent
+                current = current.left;
+            } else if (key > current.data) {
+                if (current.right == null)
+                    return current;
+                current = current.right;
+            } else {    // If you find the value return it
+                return current;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Inserts certain value into the Binary Tree
+     *
+     * @param value Value to be inserted
+     */
+    public void put(int value) {
+        Node newNode = new Node(value);
+        if (root == null)
+            root = newNode;
+        else {
+            //This will return the soon to be parent of the value you're inserting
+            Node parent = find(value);
+
+            //This if/else assigns the new node to be either the left or right child of the parent
+            if (value < parent.data) {
+                parent.left = newNode;
+                parent.left.parent = parent;
+                return;
+            } else {
+                parent.right = newNode;
+                parent.right.parent = parent;
+                return;
+            }
+        }
+    }
+
+    /**
+     * Deletes a given value from the Binary Tree
+     *
+     * @param value Value to be deleted
+     * @return If the value was deleted
+     */
+    public boolean remove(int value) {
+        //temp is the node to be deleted
+        Node temp = find(value);
+
+        //If the value doesn't exist
+        if (temp.data != value)
+            return false;
+
+        //No children
+        if (temp.right == null && temp.left == null) {
+            if (temp == root)
+                root = null;
+
+                //This if/else assigns the new node to be either the left or right child of the parent
+            else if (temp.parent.data < temp.data)
+                temp.parent.right = null;
+            else
+                temp.parent.left = null;
+            return true;
+        }
+
+        //Two children
+        else if (temp.left != null && temp.right != null) {
+            Node successor = findSuccessor(temp);
+
+            //The left tree of temp is made the left tree of the successor
+            successor.left = temp.left;
+            successor.left.parent = successor;
+
+            //If the successor has a right child, the child's grandparent is it's new parent
+            if(successor.parent!=temp){
+                if(successor.right!=null){
+                    successor.right.parent = successor.parent;
+                    successor.parent.left = successor.right;
+                    successor.right = temp.right;
+                    successor.right.parent = successor;
+                }else{
+                    successor.parent.left=null;
+                    successor.right=temp.right;
+                    successor.right.parent=successor;
+                }
+            }
+
+            if (temp == root) {
+                successor.parent = null;
+                root = successor;
+                return true;
+            }
+
+            //If you're not deleting the root
+            else {
+                successor.parent = temp.parent;
+
+                //This if/else assigns the new node to be either the left or right child of the parent
+                if (temp.parent.data < temp.data)
+                    temp.parent.right = successor;
+                else
+                    temp.parent.left = successor;
+                return true;
+            }
+        }
+        //One child
+        else {
+            //If it has a right child
+            if (temp.right != null) {
+                if (temp == root) {
+                    root = temp.right;
+                    return true;
+                }
+
+                temp.right.parent = temp.parent;
+
+                //Assigns temp to left or right child
+                if (temp.data < temp.parent.data)
+                    temp.parent.left = temp.right;
+                else
+                    temp.parent.right = temp.right;
+                return true;
+            }
+            //If it has a left child
+            else {
+                if (temp == root) {
+                    root = temp.left;
+                    return true;
+                }
+
+                temp.left.parent = temp.parent;
+
+                //Assigns temp to left or right side
+                if (temp.data < temp.parent.data)
+                    temp.parent.left = temp.left;
+                else
+                    temp.parent.right = temp.left;
+                return true;
+            }
+        }
+    }
+
+    /**
+     * This method finds the Successor to the Node given.
+     * Move right once and go left down the tree as far as you can
+     *
+     * @param n Node that you want to find the Successor of
+     * @return The Successor of the node
+     */
+    public Node findSuccessor(Node n) {
+        if (n.right == null)
+            return n;
+        Node current = n.right;
+        Node parent = n.right;
+        while (current != null) {
+            parent = current;
+            current = current.left;
+        }
+        return parent;
+    }
+
+    /**
+     * Returns the root of the Binary Tree
+     *
+     * @return the root of the Binary Tree
+     */
+    public Node getRoot() {
+        return root;
+    }
+
+    /**
+     * Prints leftChild - root - rightChild
+     *
+     * @param localRoot The local root of the binary tree
+     */
+    public void inOrder(Node localRoot) {
+        if (localRoot != null) {
+            inOrder(localRoot.left);
+            System.out.print(localRoot.data + " ");
+            inOrder(localRoot.right);
+        }
+    }
+
+    /**
+     * Prints root - leftChild - rightChild
+     *
+     * @param localRoot The local root of the binary tree
+     */
+    public void preOrder(Node localRoot) {
+        if (localRoot != null) {
+            System.out.print(localRoot.data + " ");
+            preOrder(localRoot.left);
+            preOrder(localRoot.right);
+        }
+    }
+
+    /**
+     * Prints rightChild - leftChild - root
+     *
+     * @param localRoot The local root of the binary tree
+     */
+    public void postOrder(Node localRoot) {
+        if (localRoot != null) {
+            postOrder(localRoot.left);
+            postOrder(localRoot.right);
+            System.out.print(localRoot.data + " ");
+        }
+    }
+}
+
+package DataStructures.Trees;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Scanner;
+
+/**
+ * A generic tree is a tree which can have as many children as it can be
+ * It might be possible that every node present is directly connected to
+ * root node.
+ * <p>
+ * In this code
+ * Every function has two copies: one function is helper function which can be called from
+ * main and from that function a private function is called which will do the actual work.
+ * I have done this, while calling from main one have to give minimum parameters.
+ */
+public class GenericTree {
+    private class Node {
+        int data;
+        ArrayList<Node> child = new ArrayList<>();
+    }
+
+    private Node root;
+    private int size;
+
+    public GenericTree() {     //Constructor
+        Scanner scn = new Scanner(System.in);
+        root = create_treeG(null, 0, scn);
+    }
+
+    private Node create_treeG(Node node, int childindx, Scanner scn) {
+        // display
+        if (node == null) {
+            System.out.println("Enter root's data");
+        } else {
+            System.out.println("Enter data of parent of index " + node.data + " " + childindx);
+        }
+        // input
+        node = new Node();
+        node.data = scn.nextInt();
+        System.out.println("number of children");
+        int number = scn.nextInt();
+        for (int i = 0; i < number; i++) {
+            Node child = create_treeG(node, i, scn);
+            size++;
+            node.child.add(child);
+        }
+        return node;
+    }
+
+    /**
+     * Function to display the generic tree
+     */
+    public void display() {  //Helper function
+        display_1(root);
+    }
+
+    private void display_1(Node parent) {
+        System.out.print(parent.data + "=>");
+        for (int i = 0; i < parent.child.size(); i++) {
+            System.out.print(parent.child.get(i).data + " ");
+        }
+        System.out.println(".");
+        for (int i = 0; i < parent.child.size(); i++) {
+            display_1(parent.child.get(i));
+        }
+    }
+
+    /**
+     * One call store the size directly but if you are asked compute size this function to calculate
+     * size goes as follows
+     *
+     * @return size
+     */
+    public int size2call() {
+        return size2(root);
+    }
+
+    public int size2(Node roott) {
+        int sz = 0;
+        for (int i = 0; i < roott.child.size(); i++) {
+            sz += size2(roott.child.get(i));
+        }
+        return sz + 1;
+    }
+
+    /**
+     * Function to compute maximum value in the generic tree
+     *
+     * @return maximum value
+     */
+    public int maxcall() {
+        int maxi = root.data;
+        return max(root, maxi);
+    }
+
+    private int max(Node roott, int maxi) {
+        if (maxi < roott.data)
+            maxi = roott.data;
+        for (int i = 0; i < roott.child.size(); i++) {
+            maxi = max(roott.child.get(i), maxi);
+        }
+
+        return maxi;
+    }
+
+    /**
+     * Function to compute HEIGHT of the generic tree
+     *
+     * @return height
+     */
+    public int heightcall() {
+        return height(root) - 1;
+    }
+
+    private int height(Node node) {
+        int h = 0;
+        for (int i = 0; i < node.child.size(); i++) {
+            int k = height(node.child.get(i));
+            if (k > h)
+                h = k;
+        }
+        return h + 1;
+    }
+
+    /**
+     * Function to find whether a number is present in the generic tree or not
+     *
+     * @param info number
+     * @return present or not
+     */
+    public boolean findcall(int info) {
+        return find(root, info);
+    }
+
+    private boolean find(Node node, int info) {
+        if (node.data == info)
+            return true;
+        for (int i = 0; i < node.child.size(); i++) {
+            if (find(node.child.get(i), info))
+                return true;
+        }
+        return false;
+    }
+
+
+    /**
+     * Function to calculate depth of generic tree
+     *
+     * @param dep depth
+     */
+    public void depthcaller(int dep) {
+        depth(root, dep);
+    }
+
+    public void depth(Node node, int dep) {
+        if (dep == 0) {
+            System.out.println(node.data);
+            return;
+        }
+        for (int i = 0; i < node.child.size(); i++)
+            depth(node.child.get(i), dep - 1);
+        return;
+    }
+
+    /**
+     * Function to print generic tree in pre-order
+     */
+    public void preordercall() {
+        preorder(root);
+        System.out.println(".");
+    }
+
+    private void preorder(Node node) {
+        System.out.print(node.data + " ");
+        for (int i = 0; i < node.child.size(); i++)
+            preorder(node.child.get(i));
+    }
+
+    /**
+     * Function to print generic tree in post-order
+     */
+    public void postordercall() {
+        postorder(root);
+        System.out.println(".");
+    }
+
+    private void postorder(Node node) {
+        for (int i = 0; i < node.child.size(); i++)
+            postorder(node.child.get(i));
+        System.out.print(node.data + " ");
+    }
+
+    /**
+     * Function to print generic tree in level-order
+     */
+    public void levelorder() {
+        LinkedList<Node> q = new LinkedList<>();
+        q.addLast(root);
+        while (!q.isEmpty()) {
+            int k = q.getFirst().data;
+            System.out.print(k + " ");
+
+            for (int i = 0; i < q.getFirst().child.size(); i++) {
+                q.addLast(q.getFirst().child.get(i));
+            }
+            q.removeFirst();
+        }
+        System.out.println(".");
+    }
+
+    /**
+     * Function to remove all leaves of generic tree
+     */
+    public void removeleavescall() {
+        removeleaves(root);
+    }
+
+    private void removeleaves(Node node) {
+        ArrayList<Integer> arr = new ArrayList<>();
+        for (int i = 0; i < node.child.size(); i++) {
+            if (node.child.get(i).child.size() == 0) {
+                arr.add(i);
+                // node.child.remove(i);
+                // i--;
+            } else
+                removeleaves(node.child.get(i));
+        }
+        for (int i = arr.size() - 1; i >= 0; i--) {
+            node.child.remove(arr.get(i) + 0);
+        }
+    }
+
+}
+
+package DataStructures.Trees;
+
+public class LevelOrderTraversal {
+
+    class Node {
+        int data;
+        Node left, right;
+
+        public Node(int item) {
+            data = item;
+            left = right = null;
+        }
+    }
+
+    // Root of the Binary Tree
+    Node root;
+
+    public LevelOrderTraversal() {
+        root = null;
+    }
+
+    /* function to print level order traversal of tree*/
+    void printLevelOrder() {
+        int h = height(root);
+        int i;
+        for (i = 1; i <= h; i++)
+            printGivenLevel(root, i);
+    }
+
+    /* Compute the "height" of a tree -- the number of
+    nodes along the longest path from the root node
+    down to the farthest leaf node.*/
+    int height(Node root) {
+        if (root == null)
+            return 0;
+        else {
+            /**
+             * Return the height of larger subtree
+             */
+            return Math.max(height(root.left), height(root.right)) + 1;
+        }
+    }
+
+    /* Print nodes at the given level */
+    void printGivenLevel(Node root, int level) {
+        if (root == null)
+            return;
+        if (level == 1)
+            System.out.print(root.data + " ");
+        else if (level > 1) {
+            printGivenLevel(root.left, level - 1);
+            printGivenLevel(root.right, level - 1);
+        }
+    }
+}
+
+package DataStructures.Trees;
+
+import java.util.Queue;
+import java.util.LinkedList;
+
+
+/* Class to print Level Order Traversal */
+public class LevelOrderTraversalQueue {
+
+    /* Class to represent Tree node */
+    class Node {
+        int data;
+        Node left, right;
+
+        public Node(int item) {
+            data = item;
+            left = null;
+            right = null;
+        }
+    }
+
+    Node root;
+
+    /* Given a binary tree. Print its nodes in level order
+     using array for implementing queue  */
+    void printLevelOrder() {
+        Queue<Node> queue = new LinkedList<Node>();
+        queue.add(root);
+        while (!queue.isEmpty()) {
+ 
+            /* poll() removes the present head.
+            For more information on poll() visit 
+            http://www.tutorialspoint.com/java/util/linkedlist_poll.htm */
+            Node tempNode = queue.poll();
+            System.out.print(tempNode.data + " ");
+
+            /*Enqueue left child */
+            if (tempNode.left != null) {
+                queue.add(tempNode.left);
+            }
+
+            /*Enqueue right child */
+            if (tempNode.right != null) {
+                queue.add(tempNode.right);
+            }
+        }
+    }
+}
+package DataStructures.Trees;// Java program to print top view of Binary tree
+
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
+
+// Class for a tree node
+class TreeNode {
+    // Members
+    int key;
+    TreeNode left, right;
+
+    // Constructor
+    public TreeNode(int key) {
+        this.key = key;
+        left = right = null;
+    }
+}
+
+// A class to represent a queue item. The queue is used to do Level
+// order traversal. Every Queue item contains node and horizontal
+// distance of node from root
+class QItem {
+    TreeNode node;
+    int hd;
+
+    public QItem(TreeNode n, int h) {
+        node = n;
+        hd = h;
+    }
+}
+
+// Class for a Binary Tree
+class Tree {
+    TreeNode root;
+
+    // Constructors
+    public Tree() {
+        root = null;
+    }
+
+    public Tree(TreeNode n) {
+        root = n;
+    }
+
+    // This method prints nodes in top view of binary tree
+    public void printTopView() {
+        // base case
+        if (root == null) {
+            return;
+        }
+
+        // Creates an empty hashset
+        HashSet<Integer> set = new HashSet<>();
+
+        // Create a queue and add root to it
+        Queue<QItem> Q = new LinkedList<QItem>();
+        Q.add(new QItem(root, 0)); // Horizontal distance of root is 0
+
+        // Standard BFS or level order traversal loop
+        while (!Q.isEmpty()) {
+            // Remove the front item and get its details
+            QItem qi = Q.remove();
+            int hd = qi.hd;
+            TreeNode n = qi.node;
+
+            // If this is the first node at its horizontal distance,
+            // then this node is in top view
+            if (!set.contains(hd)) {
+                set.add(hd);
+                System.out.print(n.key + " ");
+            }
+
+            // Enqueue left and right children of current node
+            if (n.left != null)
+                Q.add(new QItem(n.left, hd - 1));
+            if (n.right != null)
+                Q.add(new QItem(n.right, hd + 1));
+        }
+    }
+}
+
+// Driver class to test above methods
+public class PrintTopViewofTree {
+    public static void main(String[] args) {
+        /* Create following Binary Tree
+             1
+           /  \
+          2    3
+           \
+            4
+             \
+              5
+               \
+                6*/
+        TreeNode root = new TreeNode(1);
+        root.left = new TreeNode(2);
+        root.right = new TreeNode(3);
+        root.left.right = new TreeNode(4);
+        root.left.right.right = new TreeNode(5);
+        root.left.right.right.right = new TreeNode(6);
+        Tree t = new Tree(root);
+        System.out.println("Following are nodes in top view of Binary Tree");
+        t.printTopView();
+    }
+}
+package DataStructures.Trees;
+
+import java.util.Scanner;
+
+/**
+ * @author jack870131
+ */
+public class RedBlackBST {
+
+    private final int R = 0;
+    private final int B = 1;
+
+    private class Node {
+
+        int key = -1, color = B;
+        Node left = nil, right = nil, p = nil;
+
+        Node(int key) {
+            this.key = key;
+        }
+    }
+
+    private final Node nil = new Node(-1);
+    private Node root = nil;
+
+    public void printTree(Node node) {
+        if (node == nil) {
+            return;
+        }
+        printTree(node.left);
+        System.out.print(((node.color == R) ? " R " : " B ") + "Key: " + node.key + " Parent: " + node.p.key + "\n");
+        printTree(node.right);
+    }
+
+    public void printTreepre(Node node) {
+        if (node == nil) {
+            return;
+        }
+        System.out.print(((node.color == R) ? " R " : " B ") + "Key: " + node.key + " Parent: " + node.p.key + "\n");
+        printTree(node.left);
+        printTree(node.right);
+    }
+
+    private Node findNode(Node findNode, Node node) {
+        if (root == nil) {
+            return null;
+        }
+        if (findNode.key < node.key) {
+            if (node.left != nil) {
+                return findNode(findNode, node.left);
+            }
+        } else if (findNode.key > node.key) {
+            if (node.right != nil) {
+                return findNode(findNode, node.right);
+            }
+        } else if (findNode.key == node.key) {
+            return node;
+        }
+        return null;
+    }
+
+    private void insert(Node node) {
+        Node temp = root;
+        if (root == nil) {
+            root = node;
+            node.color = B;
+            node.p = nil;
+        } else {
+            node.color = R;
+            while (true) {
+                if (node.key < temp.key) {
+                    if (temp.left == nil) {
+                        temp.left = node;
+                        node.p = temp;
+                        break;
+                    } else {
+                        temp = temp.left;
+                    }
+                } else if (node.key >= temp.key) {
+                    if (temp.right == nil) {
+                        temp.right = node;
+                        node.p = temp;
+                        break;
+                    } else {
+                        temp = temp.right;
+                    }
+                }
+            }
+            fixTree(node);
+        }
+    }
+
+    private void fixTree(Node node) {
+        while (node.p.color == R) {
+            Node y = nil;
+            if (node.p == node.p.p.left) {
+                y = node.p.p.right;
+
+                if (y != nil && y.color == R) {
+                    node.p.color = B;
+                    y.color = B;
+                    node.p.p.color = R;
+                    node = node.p.p;
+                    continue;
+                }
+                if (node == node.p.right) {
+                    node = node.p;
+                    rotateLeft(node);
+                }
+                node.p.color = B;
+                node.p.p.color = R;
+                rotateRight(node.p.p);
+            } else {
+                y = node.p.p.left;
+                if (y != nil && y.color == R) {
+                    node.p.color = B;
+                    y.color = B;
+                    node.p.p.color = R;
+                    node = node.p.p;
+                    continue;
+                }
+                if (node == node.p.left) {
+                    node = node.p;
+                    rotateRight(node);
+                }
+                node.p.color = B;
+                node.p.p.color = R;
+                rotateLeft(node.p.p);
+            }
+        }
+        root.color = B;
+    }
+
+    void rotateLeft(Node node) {
+        if (node.p != nil) {
+            if (node == node.p.left) {
+                node.p.left = node.right;
+            } else {
+                node.p.right = node.right;
+            }
+            node.right.p = node.p;
+            node.p = node.right;
+            if (node.right.left != nil) {
+                node.right.left.p = node;
+            }
+            node.right = node.right.left;
+            node.p.left = node;
+        } else {
+            Node right = root.right;
+            root.right = right.left;
+            right.left.p = root;
+            root.p = right;
+            right.left = root;
+            right.p = nil;
+            root = right;
+        }
+    }
+
+    void rotateRight(Node node) {
+        if (node.p != nil) {
+            if (node == node.p.left) {
+                node.p.left = node.left;
+            } else {
+                node.p.right = node.left;
+            }
+
+            node.left.p = node.p;
+            node.p = node.left;
+            if (node.left.right != nil) {
+                node.left.right.p = node;
+            }
+            node.left = node.left.right;
+            node.p.right = node;
+        } else {
+            Node left = root.left;
+            root.left = root.left.right;
+            left.right.p = root;
+            root.p = left;
+            left.right = root;
+            left.p = nil;
+            root = left;
+        }
+    }
+
+    void transplant(Node target, Node with) {
+        if (target.p == nil) {
+            root = with;
+        } else if (target == target.p.left) {
+            target.p.left = with;
+        } else
+            target.p.right = with;
+        with.p = target.p;
+    }
+
+    Node treeMinimum(Node subTreeRoot) {
+        while (subTreeRoot.left != nil) {
+            subTreeRoot = subTreeRoot.left;
+        }
+        return subTreeRoot;
+    }
+
+    boolean delete(Node z) {
+        if ((z = findNode(z, root)) == null)
+            return false;
+        Node x;
+        Node y = z;
+        int yorigcolor = y.color;
+
+        if (z.left == nil) {
+            x = z.right;
+            transplant(z, z.right);
+        } else if (z.right == nil) {
+            x = z.left;
+            transplant(z, z.left);
+        } else {
+            y = treeMinimum(z.right);
+            yorigcolor = y.color;
+            x = y.right;
+            if (y.p == z)
+                x.p = y;
+            else {
+                transplant(y, y.right);
+                y.right = z.right;
+                y.right.p = y;
+            }
+            transplant(z, y);
+            y.left = z.left;
+            y.left.p = y;
+            y.color = z.color;
+        }
+        if (yorigcolor == B)
+            deleteFixup(x);
+        return true;
+    }
+
+    void deleteFixup(Node x) {
+        while (x != root && x.color == B) {
+            if (x == x.p.left) {
+                Node w = x.p.right;
+                if (w.color == R) {
+                    w.color = B;
+                    x.p.color = R;
+                    rotateLeft(x.p);
+                    w = x.p.right;
+                }
+                if (w.left.color == B && w.right.color == B) {
+                    w.color = R;
+                    x = x.p;
+                    continue;
+                } else if (w.right.color == B) {
+                    w.left.color = B;
+                    w.color = R;
+                    rotateRight(w);
+                    w = x.p.right;
+                }
+                if (w.right.color == R) {
+                    w.color = x.p.color;
+                    x.p.color = B;
+                    w.right.color = B;
+                    rotateLeft(x.p);
+                    x = root;
+                }
+            } else {
+                Node w = x.p.left;
+                if (w.color == R) {
+                    w.color = B;
+                    x.p.color = R;
+                    rotateRight(x.p);
+                    w = x.p.left;
+                }
+                if (w.right.color == B && w.left.color == B) {
+                    w.color = R;
+                    x = x.p;
+                    continue;
+                } else if (w.left.color == B) {
+                    w.right.color = B;
+                    w.color = R;
+                    rotateLeft(w);
+                    w = x.p.left;
+                }
+                if (w.left.color == R) {
+                    w.color = x.p.color;
+                    x.p.color = B;
+                    w.left.color = B;
+                    rotateRight(x.p);
+                    x = root;
+                }
+            }
+        }
+        x.color = B;
+    }
+
+    public void insertDemo() {
+        Scanner scan = new Scanner(System.in);
+        while (true) {
+            System.out.println("Add items");
+
+            int item;
+            Node node;
+
+            item = scan.nextInt();
+            while (item != -999) {
+                node = new Node(item);
+                insert(node);
+                item = scan.nextInt();
+            }
+            printTree(root);
+            System.out.println("Pre order");
+            printTreepre(root);
+            break;
+        }
+        scan.close();
+    }
+
+    public void deleteDemo() {
+        Scanner scan = new Scanner(System.in);
+        System.out.println("Delete items");
+        int item;
+        Node node;
+        item = scan.nextInt();
+        node = new Node(item);
+        System.out.print("Deleting item " + item);
+        if (delete(node)) {
+            System.out.print(": deleted!");
+        } else {
+            System.out.print(": does not exist!");
+        }
+
+        System.out.println();
+        printTree(root);
+        System.out.println("Pre order");
+        printTreepre(root);
+        scan.close();
+    }
+}
+package DataStructures.Trees;
+
+import java.util.LinkedList;
+
+/**
+ * @author Varun Upadhyay (https://github.com/varunu28)
+ */
+
+
+// Driver Program
+public class TreeTraversal {
+    public static void main(String[] args) {
+        Node tree = new Node(5);
+        tree.insert(3);
+        tree.insert(2);
+        tree.insert(7);
+        tree.insert(4);
+        tree.insert(6);
+        tree.insert(8);
+
+        // Prints 5 3 2 4 7 6 8
+        System.out.println("Pre order traversal:");
+        tree.printPreOrder();
+        System.out.println();
+        // Prints 2 3 4 5 6 7 8
+        System.out.println("In order traversal:");
+        tree.printInOrder();
+        System.out.println();
+        // Prints 2 4 3 6 8 7 5
+        System.out.println("Post order traversal:");
+        tree.printPostOrder();
+        System.out.println();
+        // Prints 5 3 7 2 4 6 8
+        System.out.println("Level order traversal:");
+        tree.printLevelOrder();
+        System.out.println();
+    }
+}
+
+/**
+ * The Node class which initializes a Node of a tree
+ * Consists of all 4 traversal methods: printInOrder, printPostOrder£¬ printPreOrder & printLevelOrder
+ * printInOrder: LEFT -> ROOT -> RIGHT
+ * printPreOrder: ROOT -> LEFT -> RIGHT
+ * printPostOrder: LEFT -> RIGHT -> ROOT
+ * printLevelOrder: Prints by level (starting at root), from left to right.
+ */
+class Node {
+    Node left, right;
+    int data;
+
+    public Node(int data) {
+        this.data = data;
+    }
+
+    public void insert(int value) {
+        if (value < data) {
+            if (left == null) {
+                left = new Node(value);
+            } else {
+                left.insert(value);
+            }
+        } else {
+            if (right == null) {
+                right = new Node(value);
+            } else {
+                right.insert(value);
+            }
+        }
+    }
+
+    public void printInOrder() {
+        if (left != null) {
+            left.printInOrder();
+        }
+        System.out.print(data + " ");
+        if (right != null) {
+            right.printInOrder();
+        }
+    }
+
+    public void printPreOrder() {
+        System.out.print(data + " ");
+        if (left != null) {
+            left.printPreOrder();
+        }
+        if (right != null) {
+            right.printPreOrder();
+        }
+    }
+
+    public void printPostOrder() {
+        if (left != null) {
+            left.printPostOrder();
+        }
+        if (right != null) {
+            right.printPostOrder();
+        }
+        System.out.print(data + " ");
+    }
+
+    /**
+     * O(n) time algorithm.
+     * Uses O(n) space to store nodes in a queue to aid in traversal.
+     */
+    public void printLevelOrder() {
+        LinkedList<Node> queue = new LinkedList<>();
+        queue.add(this);
+        while (queue.size() > 0) {
+            Node head = queue.remove();
+            System.out.print(head.data + " ");
+            // Add children of recently-printed node to queue, if they exist.
+            if (head.left != null) {
+                queue.add(head.left);
+            }
+            if (head.right != null) {
+                queue.add(head.right);
+            }
+        }
+    }
+}
+
+package DataStructures.Trees;
+
+/**
+ * Trie Data structure implementation without any libraries
+ *
+ * @author Dheeraj Kumar Barnwal (https://github.com/dheeraj92)
+ */
+
+import java.util.Scanner;
+
+public class TrieImp {
+
+    public class TrieNode {
+        TrieNode[] child;
+        boolean end;
+
+        public TrieNode() {
+            child = new TrieNode[26];
+            end = false;
+        }
+    }
+
+    private final TrieNode root;
+
+    public TrieImp() {
+        root = new TrieNode();
+    }
+
+    public void insert(String word) {
+        TrieNode currentNode = root;
+        for (int i = 0; i < word.length(); i++) {
+            TrieNode node = currentNode.child[word.charAt(i) - 'a'];
+            if (node == null) {
+                node = new TrieNode();
+                currentNode.child[word.charAt(i) - 'a'] = node;
+            }
+            currentNode = node;
+        }
+        currentNode.end = true;
+    }
+
+    public boolean search(String word) {
+        TrieNode currentNode = root;
+        for (int i = 0; i < word.length(); i++) {
+            char ch = word.charAt(i);
+            TrieNode node = currentNode.child[ch - 'a'];
+            if (node == null) {
+                return false;
+            }
+            currentNode = node;
+        }
+        return currentNode.end;
+    }
+
+    public boolean delete(String word) {
+        TrieNode currentNode = root;
+        for (int i = 0; i < word.length(); i++) {
+            char ch = word.charAt(i);
+            TrieNode node = currentNode.child[ch - 'a'];
+            if (node == null) {
+                return false;
+            }
+            currentNode = node;
+        }
+        if (currentNode.end == true) {
+            currentNode.end = false;
+            return true;
+        }
+        return false;
+    }
+
+    public static void sop(String print) {
+        System.out.println(print);
+    }
+
+    /**
+     * Regex to check if word contains only a-z character
+     */
+    public static boolean isValid(String word) {
+        return word.matches("^[a-z]+$");
+    }
+
+    public static void main(String[] args) {
+        TrieImp obj = new TrieImp();
+        String word;
+        @SuppressWarnings("resource")
+        Scanner scan = new Scanner(System.in);
+        sop("string should contain only a-z character for all operation");
+        while (true) {
+            sop("1. Insert\n2. Search\n3. Delete\n4. Quit");
+            try {
+                int t = scan.nextInt();
+                switch (t) {
+                    case 1:
+                        word = scan.next();
+                        if (isValid(word))
+                            obj.insert(word);
+                        else
+                            sop("Invalid string: allowed only a-z");
+                        break;
+                    case 2:
+                        word = scan.next();
+                        boolean resS = false;
+                        if (isValid(word))
+                            resS = obj.search(word);
+                        else
+                            sop("Invalid string: allowed only a-z");
+                        if (resS)
+                            sop("word found");
+                        else
+                            sop("word not found");
+                        break;
+                    case 3:
+                        word = scan.next();
+                        boolean resD = false;
+                        if (isValid(word))
+                            resD = obj.delete(word);
+                        else
+                            sop("Invalid string: allowed only a-z");
+                        if (resD) {
+                            sop("word got deleted successfully");
+                        } else {
+                            sop("word not found");
+                        }
+                        break;
+                    case 4:
+                        sop("Quit successfully");
+                        System.exit(1);
+                        break;
+                    default:
+                        sop("Input int from 1-4");
+                        break;
+                }
+            } catch (Exception e) {
+                String badInput = scan.next();
+                sop("This is bad input: " + badInput);
+            }
+        }
+    }
+
+}
+
+package DataStructures.Trees;
+
+public class ValidBSTOrNot {
+
+    class Node {
+        int data;
+        Node left, right;
+
+        public Node(int item) {
+            data = item;
+            left = right = null;
+        }
+    }
+
+    //Root of the Binary Tree
+    Node root;
+ 
+    /* can give min and max value according to your code or
+    can write a function to find min and max value of tree. */
+
+    /* returns true if given search tree is binary
+     search tree (efficient version) */
+    boolean isBST() {
+        return isBSTUtil(root, Integer.MIN_VALUE,
+                Integer.MAX_VALUE);
+    }
+
+    /* Returns true if the given tree is a BST and its
+      values are >= min and <= max. */
+    boolean isBSTUtil(Node node, int min, int max) {
+        /* an empty tree is BST */
+        if (node == null)
+            return true;
+
+        /* false if this node violates the min/max constraints */
+        if (node.data < min || node.data > max)
+            return false;
+ 
+        /* otherwise check the subtrees recursively
+        tightening the min/max constraints */
+        // Allow only distinct values
+        return (isBSTUtil(node.left, min, node.data - 1) &&
+                isBSTUtil(node.right, node.data + 1, max));
+    }
+}

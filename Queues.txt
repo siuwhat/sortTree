@@ -1,0 +1,562 @@
+package DataStructures.Queues;
+
+import java.util.ArrayList;
+
+/**
+ * This class implements a GenericArrayListQueue.
+ * <p>
+ * A GenericArrayListQueue data structure functions the same as any specific-typed queue.
+ * The GenericArrayListQueue holds elemets of types to-be-specified at runtime.
+ * The elements that are added first are the first to be removed (FIFO)
+ * New elements are added to the back/rear of the queue.
+ *
+ */
+public class GenericArrayListQueue<T> {
+    /**
+     * The generic ArrayList for the queue
+     * T is the generic element
+     */
+    ArrayList<T> _queue = new ArrayList<T>();
+
+    /**
+     * Checks if the queue has elements (not empty)
+     *
+     * @return True if the queue has elements. False otherwise.
+     */
+    private boolean hasElements() {
+        return !_queue.isEmpty();
+    }
+
+    /**
+     * Checks what's at the front of the queue
+     *
+     * @return If queue is not empty, element at the front of the queue. Otherwise, null
+     */
+    public T peek() {
+        T result = null;
+        if(this.hasElements()) { result = _queue.get(0); }
+        return result;
+    }
+
+    /**
+     * Inserts an element of type T to the queue.
+     *
+     * @param element of type T to be added
+     * @return True if the element was added successfully
+     */
+    public boolean add(T element) {
+        return _queue.add(element);
+    }
+
+    /**
+     * Retrieve what's at the front of the queue
+     *
+     * @return If queue is not empty, element retrieved. Otherwise, null
+     */
+    public T poll() {
+        T result = null;
+        if(this.hasElements()) { result = _queue.remove(0); }
+        return result;
+    }
+
+    /**
+     * Main method
+     *
+     * @param args Command line arguments
+     */
+    public static void main(String[] args) {
+        GenericArrayListQueue<Integer> queue = new GenericArrayListQueue<Integer>();
+        System.out.println("Running...");
+        assert queue.peek() == null;
+        assert queue.poll() == null;
+        assert queue.add(1) == true;
+        assert queue.peek() == 1;
+        assert queue.add(2) == true;
+        assert queue.peek() == 1;
+        assert queue.poll() == 1;
+        assert queue.peek() == 2;
+        assert queue.poll() == 2;
+        assert queue.peek() == null;
+        assert queue.poll() == null;
+        System.out.println("Finished.");
+    }
+}
+
+package DataStructures.Queues;
+
+import java.util.NoSuchElementException;
+
+public class LinkedQueue {
+    class Node {
+        int data;
+        Node next;
+
+        public Node() {
+            this(0);
+        }
+
+        public Node(int data) {
+            this(data, null);
+        }
+
+        public Node(int data, Node next) {
+            this.data = data;
+            this.next = next;
+        }
+    }
+
+    /**
+     * Front of Queue
+     */
+    private Node front;
+
+    /**
+     * Rear of Queue
+     */
+    private Node rear;
+
+    /**
+     * Size of Queue
+     */
+    private int size;
+
+    /**
+     * Init LinkedQueue
+     */
+    public LinkedQueue() {
+        front = rear = new Node();
+    }
+
+    /**
+     * Check if queue is empty
+     *
+     * @return <tt>true</tt> if queue is empty, otherwise <tt>false</tt>
+     */
+    public boolean isEmpty() {
+        return size == 0;
+    }
+
+    /**
+     * Add element to rear of queue
+     *
+     * @param data insert value
+     * @return <tt>true</tt> if add successfully
+     */
+    public boolean enqueue(int data) {
+        Node newNode = new Node(data);
+        rear.next = newNode;
+        rear = newNode; /* make rear point at last node */
+        size++;
+        return true;
+    }
+
+    /**
+     * Remove element at the front of queue
+     *
+     * @return element at the front of queue
+     */
+    public int dequeue() {
+        if (isEmpty()) {
+            throw new NoSuchElementException("queue is empty");
+        }
+        Node destroy = front.next;
+        int retValue = destroy.data;
+        front.next = front.next.next;
+        destroy = null; /* clear let GC do it's work */
+        size--;
+
+        if (isEmpty()) {
+            front = rear;
+        }
+
+        return retValue;
+    }
+
+    /**
+     * Peek element at the front of queue without removing
+     *
+     * @return element at the front
+     */
+    public int peekFront() {
+        if (isEmpty()) {
+            throw new NoSuchElementException("queue is empty");
+        }
+        return front.next.data;
+    }
+
+    /**
+     * Peek element at the rear of queue without removing
+     *
+     * @return element at the front
+     */
+    public int peekRear() {
+        if (isEmpty()) {
+            throw new NoSuchElementException("queue is empty");
+        }
+        return rear.data;
+    }
+
+    /**
+     * Return size of queue
+     *
+     * @return size of queue
+     */
+    public int size() {
+        return size;
+    }
+
+    /**
+     * Clear all nodes in queue
+     */
+    public void clear() {
+        while (!isEmpty()) {
+            dequeue();
+        }
+    }
+
+    @Override
+    public String toString() {
+        if (isEmpty()) {
+            return "[]";
+        }
+        StringBuilder builder = new StringBuilder();
+        Node cur = front.next;
+        builder.append("[");
+        while (cur != null) {
+            builder.append(cur.data).append(", ");
+            cur = cur.next;
+        }
+        builder.replace(builder.length() - 2, builder.length(), "]");
+        return builder.toString();
+    }
+
+    /* Driver Code */
+    public static void main(String[] args) {
+        LinkedQueue queue = new LinkedQueue();
+        assert queue.isEmpty();
+
+        queue.enqueue(1); /* 1 */
+        queue.enqueue(2); /* 1 2 */
+        queue.enqueue(3); /* 1 2 3 */
+        System.out.println(queue); /* [1, 2, 3] */
+
+        assert queue.size() == 3;
+        assert queue.dequeue() == 1;
+        assert queue.peekFront() == 2;
+        assert queue.peekRear() == 3;
+
+        queue.clear();
+        assert queue.isEmpty();
+
+        System.out.println(queue); /* [] */
+    }
+}
+
+package DataStructures.Queues;
+
+/**
+ * This class implements a PriorityQueue.
+ * <p>
+ * A priority queue adds elements into positions based on their priority.
+ * So the most important elements are placed at the front/on the top.
+ * In this example I give numbers that are bigger, a higher priority.
+ * Queues in theory have no fixed size but when using an array
+ * implementation it does.
+ */
+class PriorityQueue {
+    /**
+     * The max size of the queue
+     */
+    private int maxSize;
+    /**
+     * The array for the queue
+     */
+    private int[] queueArray;
+    /**
+     * How many items are in the queue
+     */
+    private int nItems;
+
+    /**
+     * Constructor
+     *
+     * @param size Size of the queue
+     */
+    public PriorityQueue(int size) {
+        maxSize = size;
+        queueArray = new int[size];
+        nItems = 0;
+    }
+
+    /**
+     * Inserts an element in it's appropriate place
+     *
+     * @param value Value to be inserted
+     */
+    public void insert(int value) {
+        if (isFull()) {
+            throw new RuntimeException("Queue is full");
+        } else {
+            int j = nItems - 1; // index of last element
+            while (j >= 0 && queueArray[j] > value) {
+                queueArray[j + 1] = queueArray[j]; // Shifts every element up to make room for insertion
+                j--;
+            }
+            queueArray[j + 1] = value; // Once the correct position is found the value is inserted
+            nItems++;
+        } 
+    }
+
+    /**
+     * Remove the element from the front of the queue
+     *
+     * @return The element removed
+     */
+    public int remove() {
+        return queueArray[--nItems];
+    }
+
+    /**
+     * Checks what's at the front of the queue
+     *
+     * @return element at the front of the queue
+     */
+    public int peek() {
+        return queueArray[nItems - 1];
+    }
+
+    /**
+     * Returns true if the queue is empty
+     *
+     * @return true if the queue is empty
+     */
+    public boolean isEmpty() {
+        return (nItems == 0);
+    }
+
+    /**
+     * Returns true if the queue is full
+     *
+     * @return true if the queue is full
+     */
+    public boolean isFull() {
+        return (nItems == maxSize);
+    }
+
+    /**
+     * Returns the number of elements in the queue
+     *
+     * @return number of elements in the queue
+     */
+    public int getSize() {
+        return nItems;
+    }
+}
+
+/**
+ * This class implements the PriorityQueue class above.
+ *
+ * @author Unknown
+ */
+public class PriorityQueues {
+    /**
+     * Main method
+     *
+     * @param args Command Line Arguments
+     */
+    public static void main(String[] args) {
+        PriorityQueue myQueue = new PriorityQueue(4);
+        myQueue.insert(10);
+        myQueue.insert(2);
+        myQueue.insert(5);
+        myQueue.insert(3);
+        // [2, 3, 5, 10] Here higher numbers have higher priority, so they are on the top
+
+        for (int i = 3; i >= 0; i--)
+            System.out.print(myQueue.remove() + " "); // will print the queue in reverse order [10, 5, 3, 2]
+
+        // As you can see, a Priority Queue can be used as a sorting algotithm
+    }
+}
+
+package DataStructures.Queues;
+
+/**
+ * This implements Queues by using the class Queue.
+ * <p>
+ * A queue data structure functions the same as a real world queue.
+ * The elements that are added first are the first to be removed.
+ * New elements are added to the back/rear of the queue.
+ *
+ */
+class Queue {
+    /**
+     * Default initial capacity.
+     */
+    private static final int DEFAULT_CAPACITY = 10;
+
+    /**
+     * Max size of the queue
+     */
+    private int maxSize;
+    /**
+     * The array representing the queue
+     */
+    private int[] queueArray;
+    /**
+     * Front of the queue
+     */
+    private int front;
+    /**
+     * Rear of the queue
+     */
+    private int rear;
+    /**
+     * How many items are in the queue
+     */
+    private int nItems;
+
+    /**
+     * init with DEFAULT_CAPACITY
+     */
+    public Queue() {
+        this(DEFAULT_CAPACITY);
+    }
+
+    /**
+     * Constructor
+     *
+     * @param size Size of the new queue
+     */
+    public Queue(int size) {
+        maxSize = size;
+        queueArray = new int[size];
+        front = 0;
+        rear = -1;
+        nItems = 0;
+    }
+
+    /**
+     * Inserts an element at the rear of the queue
+     *
+     * @param x element to be added
+     * @return True if the element was added successfully
+     */
+    public boolean insert(int x) {
+        if (isFull())
+            return false;
+        // If the back of the queue is the end of the array wrap around to the front
+        rear = (rear + 1) % maxSize;
+        queueArray[rear] = x;
+        nItems++;
+        return true;
+    }
+
+    /**
+     * Remove an element from the front of the queue
+     *
+     * @return the new front of the queue
+     */
+    public int remove() {
+        if (isEmpty()) {
+            return -1;
+        }
+        int temp = queueArray[front];
+        front = (front + 1) % maxSize;
+        nItems--;
+        return temp;
+    }
+
+    /**
+     * Checks what's at the front of the queue
+     *
+     * @return element at the front of the queue
+     */
+    public int peekFront() {
+        return queueArray[front];
+    }
+
+    /**
+     * Checks what's at the rear of the queue
+     *
+     * @return element at the rear of the queue
+     */
+    public int peekRear() {
+        return queueArray[rear];
+    }
+
+    /**
+     * Returns true if the queue is empty
+     *
+     * @return true if the queue is empty
+     */
+    public boolean isEmpty() {
+        return nItems == 0;
+    }
+
+    /**
+     * Returns true if the queue is full
+     *
+     * @return true if the queue is full
+     */
+    public boolean isFull() {
+        return nItems == maxSize;
+    }
+
+    /**
+     * Returns the number of elements in the queue
+     *
+     * @return number of elements in the queue
+     */
+    public int getSize() {
+        return nItems;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (int i = front; ; i = ++i % maxSize) {
+            sb.append(queueArray[i]).append(", ");
+            if (i == rear) {
+                break;
+            }
+        }
+        sb.replace(sb.length() - 2, sb.length(), "]");
+        return sb.toString();
+    }
+}
+
+/**
+ * This class is the example for the Queue class
+ *
+ * @author Unknown
+ */
+public class Queues {
+    /**
+     * Main method
+     *
+     * @param args Command line arguments
+     */
+    public static void main(String[] args) {
+        Queue myQueue = new Queue(4);
+        myQueue.insert(10);
+        myQueue.insert(2);
+        myQueue.insert(5);
+        myQueue.insert(3);
+        // [10(front), 2, 5, 3(rear)]
+
+        System.out.println(myQueue.isFull()); // Will print true
+
+        myQueue.remove(); // Will make 2 the new front, making 10 no longer part of the queue
+        // [10, 2(front), 5, 3(rear)]
+
+        myQueue.insert(7); // Insert 7 at the rear which will be index 0 because of wrap around
+        // [7(rear), 2(front), 5, 3]
+
+        System.out.println(myQueue.peekFront()); // Will print 2
+        System.out.println(myQueue.peekRear()); // Will print 7
+        System.out.println(myQueue.toString()); // Will print [2, 5, 3, 7]
+    }
+}
+

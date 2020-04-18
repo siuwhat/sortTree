@@ -1,0 +1,545 @@
+package DataStructures.Heaps;
+
+/**
+ * @author Nicolas Renard
+ * Exception to be thrown if the getElement method is used on an empty heap.
+ */
+@SuppressWarnings("serial")
+public class EmptyHeapException extends Exception {
+
+    public EmptyHeapException(String message) {
+        super(message);
+    }
+
+}
+
+package DataStructures.Heaps;
+
+/**
+ * Interface common to heap data structures.<br>
+ * <p>Heaps are tree-like data structures that allow storing elements in a specific
+ * way. Each node corresponds to an element and has one parent node (except for the root) and
+ * at most two children nodes. Every element contains a key, and those keys
+ * indicate how the tree shall be built. For instance, for a min-heap, the key of a node shall
+ * be greater than or equal to its parent's and lower than or equal to its children's (the opposite rule applies to a
+ * max-heap).</p>
+ * <p>All heap-related operations (inserting or deleting an element, extracting the min or max) are performed in
+ * O(log n) time.</p>
+ *
+ * @author Nicolas Renard
+ */
+public interface Heap {
+
+    /**
+     * @return the top element in the heap, the one with lowest key for min-heap or with
+     * the highest key for max-heap
+     * @throws EmptyHeapException if heap is empty
+     */
+    HeapElement getElement() throws EmptyHeapException;
+
+    /**
+     * Inserts an element in the heap. Adds it to then end and toggle it until it finds its
+     * right position.
+     *
+     * @param element an instance of the HeapElement class.
+     */
+    void insertElement(HeapElement element);
+
+    /**
+     * Delete an element in the heap.
+     *
+     * @param elementIndex int containing the position in the heap of the element to be deleted.
+     */
+    void deleteElement(int elementIndex);
+
+}
+package DataStructures.Heaps;
+
+import java.lang.Double;
+import java.lang.Object;
+
+/**
+ * Class for heap elements.<br>
+ * <p>A heap element contains two attributes: a key which will be used to build the tree (int
+ * or double, either primitive type or object) and any kind of IMMUTABLE object the user sees fit
+ * to carry any information he/she likes. Be aware that the use of a mutable object might
+ * jeopardize the integrity of this information. </p>
+ *
+ * @author Nicolas Renard
+ */
+public class HeapElement {
+    private final double key;
+    private final Object additionalInfo;
+
+    // Constructors
+
+    /**
+     * @param key  : a number of primitive type 'double'
+     * @param info : any kind of IMMUTABLE object. May be null, since the purpose is only to carry
+     *             additional information of use for the user
+     */
+    public HeapElement(double key, Object info) {
+        this.key = key;
+        this.additionalInfo = info;
+    }
+
+    /**
+     * @param key  : a number of primitive type 'int'
+     * @param info : any kind of IMMUTABLE object. May be null, since the purpose is only to carry
+     *             additional information of use for the user
+     */
+    public HeapElement(int key, Object info) {
+        this.key = key;
+        this.additionalInfo = info;
+    }
+
+    /**
+     * @param key  : a number of object type 'Integer'
+     * @param info : any kind of IMMUTABLE object. May be null, since the purpose is only to carry
+     *             additional information of use for the user
+     */
+    public HeapElement(Integer key, Object info) {
+        this.key = key;
+        this.additionalInfo = info;
+    }
+
+    /**
+     * @param key  : a number of object type 'Double'
+     * @param info : any kind of IMMUTABLE object. May be null, since the purpose is only to carry
+     *             additional information of use for the user
+     */
+    public HeapElement(Double key, Object info) {
+        this.key = key;
+        this.additionalInfo = info;
+    }
+
+    /**
+     * @param key : a number of primitive type 'double'
+     */
+    public HeapElement(double key) {
+        this.key = key;
+        this.additionalInfo = null;
+    }
+
+    /**
+     * @param key : a number of primitive type 'int'
+     */
+    public HeapElement(int key) {
+        this.key = key;
+        this.additionalInfo = null;
+    }
+
+    /**
+     * @param key : a number of object type 'Integer'
+     */
+    public HeapElement(Integer key) {
+        this.key = key;
+        this.additionalInfo = null;
+    }
+
+    /**
+     * @param key : a number of object type 'Double'
+     */
+    public HeapElement(Double key) {
+        this.key = key;
+        this.additionalInfo = null;
+    }
+
+    // Getters
+
+    /**
+     * @return the object containing the additional info provided by the user.
+     */
+    public Object getInfo() {
+        return additionalInfo;
+    }
+
+    /**
+     * @return the key value of the element
+     */
+    public double getKey() {
+        return key;
+    }
+
+    // Overridden object methods
+
+    public String toString() {
+        return "Key: " + key + " - " + additionalInfo.toString();
+    }
+
+    /**
+     * @param otherHeapElement
+     * @return true if the keys on both elements are identical and the additional info objects
+     * are identical.
+     */
+    public boolean equals(HeapElement otherHeapElement) {
+        return (this.key == otherHeapElement.key) && (this.additionalInfo.equals(otherHeapElement.additionalInfo));
+    }
+}
+
+package DataStructures.Heaps;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Heap tree where a node's key is higher than or equal to its parent's and lower than or equal
+ * to its children's.
+ *
+ * @author Nicolas Renard
+ */
+public class MaxHeap implements Heap {
+
+    private final List<HeapElement> maxHeap;
+
+    public MaxHeap(List<HeapElement> listElements) {
+        maxHeap = new ArrayList<>();
+        for (HeapElement heapElement : listElements) {
+            if (heapElement != null) insertElement(heapElement);
+            else System.out.println("Null element. Not added to heap");
+        }
+        if (maxHeap.size() == 0) System.out.println("No element has been added, empty heap.");
+    }
+
+    /**
+     * Get the element at a given index. The key for the list is equal to index value - 1
+     *
+     * @param elementIndex index
+     * @return heapElement
+     */
+    public HeapElement getElement(int elementIndex) {
+        if ((elementIndex <= 0) || (elementIndex > maxHeap.size()))
+            throw new IndexOutOfBoundsException("Index out of heap range");
+        return maxHeap.get(elementIndex - 1);
+    }
+
+    // Get the key of the element at a given index
+    private double getElementKey(int elementIndex) {
+        return maxHeap.get(elementIndex - 1).getKey();
+    }
+
+    // Swaps two elements in the heap
+    private void swap(int index1, int index2) {
+        HeapElement temporaryElement = maxHeap.get(index1 - 1);
+        maxHeap.set(index1 - 1, maxHeap.get(index2 - 1));
+        maxHeap.set(index2 - 1, temporaryElement);
+    }
+
+    // Toggle an element up to its right place as long as its key is lower than its parent's
+    private void toggleUp(int elementIndex) {
+        double key = maxHeap.get(elementIndex - 1).getKey();
+        while (getElementKey((int) Math.floor(elementIndex / 2)) < key) {
+            swap(elementIndex, (int) Math.floor(elementIndex / 2));
+            elementIndex = (int) Math.floor(elementIndex / 2);
+        }
+    }
+
+    // Toggle an element down to its right place as long as its key is higher
+    // than any of its children's
+    private void toggleDown(int elementIndex) {
+        double key = maxHeap.get(elementIndex - 1).getKey();
+        boolean wrongOrder = (key < getElementKey(elementIndex * 2)) || (key < getElementKey(Math.min(elementIndex * 2, maxHeap.size())));
+        while ((2 * elementIndex <= maxHeap.size()) && wrongOrder) {
+            // Check whether it shall swap the element with its left child or its right one if any.
+            if ((2 * elementIndex < maxHeap.size()) && (getElementKey(elementIndex * 2 + 1) > getElementKey(elementIndex * 2))) {
+                swap(elementIndex, 2 * elementIndex + 1);
+                elementIndex = 2 * elementIndex + 1;
+            } else {
+                swap(elementIndex, 2 * elementIndex);
+                elementIndex = 2 * elementIndex;
+            }
+            wrongOrder = (key < getElementKey(elementIndex * 2)) || (key < getElementKey(Math.min(elementIndex * 2, maxHeap.size())));
+
+        }
+    }
+
+    private HeapElement extractMax() {
+        HeapElement result = maxHeap.get(0);
+        deleteElement(0);
+        return result;
+    }
+
+    @Override
+    public void insertElement(HeapElement element) {
+        maxHeap.add(element);
+        toggleUp(maxHeap.size());
+
+    }
+
+    @Override
+    public void deleteElement(int elementIndex) {
+        if (maxHeap.isEmpty())
+            try {
+                throw new EmptyHeapException("Attempt to delete an element from an empty heap");
+            } catch (EmptyHeapException e) {
+                e.printStackTrace();
+            }
+        if ((elementIndex > maxHeap.size()) || (elementIndex <= 0))
+            throw new IndexOutOfBoundsException("Index out of heap range");
+        // The last element in heap replaces the one to be deleted
+        maxHeap.set(elementIndex - 1, getElement(maxHeap.size()));
+        maxHeap.remove(maxHeap.size());
+        // Shall the new element be moved up...
+        if (getElementKey(elementIndex) > getElementKey((int) Math.floor(elementIndex / 2))) toggleUp(elementIndex);
+            // ... or down ?
+        else if (((2 * elementIndex <= maxHeap.size()) && (getElementKey(elementIndex) < getElementKey(elementIndex * 2))) ||
+                ((2 * elementIndex < maxHeap.size()) && (getElementKey(elementIndex) < getElementKey(elementIndex * 2))))
+            toggleDown(elementIndex);
+    }
+
+    @Override
+    public HeapElement getElement() throws EmptyHeapException {
+        try {
+            return extractMax();
+        } catch (Exception e) {
+            throw new EmptyHeapException("Heap is empty. Error retrieving element");
+        }
+    }
+}
+package DataStructures.Heaps;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Heap tree where a node's key is higher than or equal to its parent's and lower than or equal
+ * to its children's.
+ *
+ * @author Nicolas Renard
+ */
+public class MinHeap implements Heap {
+
+    private final List<HeapElement> minHeap;
+
+    public MinHeap(List<HeapElement> listElements) {
+        minHeap = new ArrayList<>();
+        for (HeapElement heapElement : listElements) {
+            if (heapElement != null) insertElement(heapElement);
+            else System.out.println("Null element. Not added to heap");
+        }
+        if (minHeap.size() == 0) System.out.println("No element has been added, empty heap.");
+    }
+
+    // Get the element at a given index. The key for the list is equal to index value - 1
+    public HeapElement getElement(int elementIndex) {
+        if ((elementIndex <= 0) || (elementIndex > minHeap.size()))
+            throw new IndexOutOfBoundsException("Index out of heap range");
+        return minHeap.get(elementIndex - 1);
+    }
+
+    // Get the key of the element at a given index
+    private double getElementKey(int elementIndex) {
+        return minHeap.get(elementIndex - 1).getKey();
+    }
+
+    // Swaps two elements in the heap
+    private void swap(int index1, int index2) {
+        HeapElement temporaryElement = minHeap.get(index1 - 1);
+        minHeap.set(index1 - 1, minHeap.get(index2 - 1));
+        minHeap.set(index2 - 1, temporaryElement);
+    }
+
+    // Toggle an element up to its right place as long as its key is lower than its parent's
+    private void toggleUp(int elementIndex) {
+        double key = minHeap.get(elementIndex - 1).getKey();
+        while (getElementKey((int) Math.floor(elementIndex / 2)) > key) {
+            swap(elementIndex, (int) Math.floor(elementIndex / 2));
+            elementIndex = (int) Math.floor(elementIndex / 2);
+        }
+    }
+
+    // Toggle an element down to its right place as long as its key is higher
+    // than any of its children's
+    private void toggleDown(int elementIndex) {
+        double key = minHeap.get(elementIndex - 1).getKey();
+        boolean wrongOrder = (key > getElementKey(elementIndex * 2)) || (key > getElementKey(Math.min(elementIndex * 2, minHeap.size())));
+        while ((2 * elementIndex <= minHeap.size()) && wrongOrder) {
+            // Check whether it shall swap the element with its left child or its right one if any.
+            if ((2 * elementIndex < minHeap.size()) && (getElementKey(elementIndex * 2 + 1) < getElementKey(elementIndex * 2))) {
+                swap(elementIndex, 2 * elementIndex + 1);
+                elementIndex = 2 * elementIndex + 1;
+            } else {
+                swap(elementIndex, 2 * elementIndex);
+                elementIndex = 2 * elementIndex;
+            }
+            wrongOrder = (key > getElementKey(elementIndex * 2)) || (key > getElementKey(Math.min(elementIndex * 2, minHeap.size())));
+
+        }
+    }
+
+    private HeapElement extractMin() {
+        HeapElement result = minHeap.get(0);
+        deleteElement(0);
+        return result;
+    }
+
+    @Override
+    public void insertElement(HeapElement element) {
+        minHeap.add(element);
+        toggleUp(minHeap.size());
+
+    }
+
+    @Override
+    public void deleteElement(int elementIndex) {
+        if (minHeap.isEmpty())
+            try {
+                throw new EmptyHeapException("Attempt to delete an element from an empty heap");
+            } catch (EmptyHeapException e) {
+                e.printStackTrace();
+            }
+        if ((elementIndex > minHeap.size()) || (elementIndex <= 0))
+            throw new IndexOutOfBoundsException("Index out of heap range");
+        // The last element in heap replaces the one to be deleted
+        minHeap.set(elementIndex - 1, getElement(minHeap.size()));
+        minHeap.remove(minHeap.size());
+        // Shall the new element be moved up...
+        if (getElementKey(elementIndex) < getElementKey((int) Math.floor(elementIndex / 2))) toggleUp(elementIndex);
+            // ... or down ?
+        else if (((2 * elementIndex <= minHeap.size()) && (getElementKey(elementIndex) > getElementKey(elementIndex * 2))) ||
+                ((2 * elementIndex < minHeap.size()) && (getElementKey(elementIndex) > getElementKey(elementIndex * 2))))
+            toggleDown(elementIndex);
+    }
+
+    @Override
+    public HeapElement getElement() throws EmptyHeapException {
+        try {
+            return extractMin();
+        } catch (Exception e) {
+            throw new EmptyHeapException("Heap is empty. Error retrieving element");
+        }
+    }
+}
+package DataStructures.Heaps;
+
+/**
+ * Minimum Priority Queue
+ * It is a part of heap data structure
+ * A heap is a specific tree based data structure
+ * in which all the nodes of tree are in a specific order.
+ * that is the children are arranged in some
+ * respect of their parents, can either be greater
+ * or less than the parent. This makes it a min priority queue
+ * or max priority queue.
+ * <p>
+ * <p>
+ * Functions: insert, delete, peek, isEmpty, print, heapSort, sink
+ */
+public class MinPriorityQueue {
+    private int[] heap;
+    private int capacity;
+    private int size;
+
+    // calss the constructor and initializes the capacity
+    MinPriorityQueue(int c) {
+        this.capacity = c;
+        this.size = 0;
+        this.heap = new int[c + 1];
+    }
+
+    // inserts the key at the end and rearranges it
+    // so that the binary heap is in appropriate order
+    public void insert(int key) {
+        if (this.isFull())
+            return;
+        this.heap[this.size + 1] = key;
+        int k = this.size + 1;
+        while (k > 1) {
+            if (this.heap[k] < this.heap[k / 2]) {
+                int temp = this.heap[k];
+                this.heap[k] = this.heap[k / 2];
+                this.heap[k / 2] = temp;
+            }
+            k = k / 2;
+        }
+        this.size++;
+    }
+
+    // returns the highest priority value
+    public int peek() {
+        return this.heap[1];
+    }
+
+    // returns boolean value whether the heap is empty or not
+    public boolean isEmpty() {
+        if (0 == this.size)
+            return true;
+        return false;
+    }
+
+    // returns boolean value whether the heap is full or not
+    public boolean isFull() {
+        if (this.size == this.capacity)
+            return true;
+        return false;
+    }
+
+    // prints the heap
+    public void print() {
+        for (int i = 1; i <= this.capacity; i++)
+            System.out.print(this.heap[i] + " ");
+        System.out.println();
+    }
+
+    // heap sorting can be done by performing
+    // delete function to the number of times of the size of the heap
+    // it returns reverse sort because it is a min priority queue
+    public void heapSort() {
+        for (int i = 1; i < this.capacity; i++)
+            this.delete();
+    }
+
+    // this function reorders the heap after every delete function
+    private void sink() {
+        int k = 1;
+        while (2 * k <= this.size || 2 * k + 1 <= this.size) {
+            int minIndex;
+            if (this.heap[2 * k] >= this.heap[k]) {
+                if (2 * k + 1 <= this.size && this.heap[2 * k + 1] >= this.heap[k]) {
+                    break;
+                } else if (2 * k + 1 > this.size) {
+                    break;
+                }
+            }
+            if (2 * k + 1 > this.size) {
+                minIndex = this.heap[2 * k] < this.heap[k] ? 2 * k : k;
+            } else {
+                if (this.heap[k] > this.heap[2 * k] || this.heap[k] > this.heap[2 * k + 1]) {
+                    minIndex = this.heap[2 * k] < this.heap[2 * k + 1] ? 2 * k : 2 * k + 1;
+                } else {
+                    minIndex = k;
+                }
+            }
+            int temp = this.heap[k];
+            this.heap[k] = this.heap[minIndex];
+            this.heap[minIndex] = temp;
+            k = minIndex;
+        }
+    }
+
+    // deletes the highest priority value from the heap
+    public int delete() {
+        int min = this.heap[1];
+        this.heap[1] = this.heap[this.size];
+        this.heap[this.size] = min;
+        this.size--;
+        this.sink();
+        return min;
+    }
+
+    public static void main(String[] args) {
+        // testing
+        MinPriorityQueue q = new MinPriorityQueue(8);
+        q.insert(5);
+        q.insert(2);
+        q.insert(4);
+        q.insert(1);
+        q.insert(7);
+        q.insert(6);
+        q.insert(3);
+        q.insert(8);
+        q.print(); // [ 1, 2, 3, 5, 7, 6, 4, 8 ]
+        q.heapSort();
+        q.print(); // [ 8, 7, 6, 5, 4, 3, 2, 1 ]
+    }
+}

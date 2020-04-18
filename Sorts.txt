@@ -1,0 +1,1180 @@
+package Sorts;
+
+import java.util.Random;
+
+
+/**
+ * @author Podshivalov Nikita (https://github.com/nikitap492)
+ * @see SortAlgorithm
+ */
+public class BogoSort implements SortAlgorithm {
+
+    private static final Random random = new Random();
+
+
+    private static <T extends Comparable<T>> boolean isSorted(T[] array) {
+        for (int i = 0; i < array.length - 1; i++) {
+            if (SortUtils.less(array[i + 1], array[i])) return false;
+        }
+        return true;
+    }
+
+    // Randomly shuffles the array
+    private static <T> void nextPermutation(T[] array) {
+        int length = array.length;
+
+        for (int i = 0; i < array.length; i++) {
+            int randomIndex = i + random.nextInt(length - i);
+            SortUtils.swap(array, randomIndex, i);
+        }
+    }
+
+    public <T extends Comparable<T>> T[] sort(T[] array) {
+        while (!isSorted(array)) {
+            nextPermutation(array);
+        }
+        return array;
+    }
+
+    // Driver Program
+    public static void main(String[] args) {
+        // Integer Input
+        Integer[] integers = {4, 23, 6, 78, 1, 54, 231, 9, 12};
+
+        BogoSort bogoSort = new BogoSort();
+
+        // print a sorted array
+        SortUtils.print(bogoSort.sort(integers));
+
+        // String Input
+        String[] strings = {"c", "a", "e", "b", "d"};
+
+        SortUtils.print(bogoSort.sort(strings));
+    }
+}
+
+package Sorts;
+
+import static Sorts.SortUtils.*;
+
+/**
+ * @author Varun Upadhyay (https://github.com/varunu28)
+ * @author Podshivalov Nikita (https://github.com/nikitap492)
+ * @see SortAlgorithm
+ */
+
+class BubbleSort implements SortAlgorithm {
+    /**
+     * This method implements the Generic Bubble Sort
+     *
+     * @param array The array to be sorted
+     *              Sorts the array in increasing order
+     **/
+
+    @Override
+    public <T extends Comparable<T>> T[] sort(T[] array) {
+        for (int i = 0, size = array.length; i < size - 1; ++i) {
+            boolean swapped = false;
+            for (int j = 0; j < size - 1 - i; ++j) {
+            	if (less(array[j], array[j + 1])) {
+            		swap(array, j, j + 1);
+            		swapped = true;
+                }
+            }
+            if (!swapped) {
+                break;
+            }
+        }
+        return array;
+    }
+
+    // Driver Program
+    public static void main(String[] args) {
+
+        // Integer Input
+        Integer[] integers = {4, 23, 6, 78, 1, 54, 231, 9, 12};
+        BubbleSort bubbleSort = new BubbleSort();
+        bubbleSort.sort(integers);
+
+        // Output => 231, 78, 54, 23, 12, 9, 6, 4, 1
+        print(integers);
+
+        // String Input
+        String[] strings = {"c", "a", "e", "b", "d"};
+        //Output => e, d, c, b, a
+        print(bubbleSort.sort(strings));
+
+    }
+}
+
+package Sorts;
+
+/**
+ * @author Mateus Bizzo (https://github.com/MattBizzo)
+ * @author Podshivalov Nikita (https://github.com/nikitap492)
+ */
+
+class CocktailShakerSort implements SortAlgorithm {
+
+    /**
+     * This method implements the Generic Cocktail Shaker Sort
+     *
+     * @param array The array to be sorted
+     *              Sorts the array in increasing order
+     **/
+
+    @Override
+    public <T extends Comparable<T>> T[] sort(T[] array) {
+
+        int length = array.length;
+        int left = 0;
+        int right = length - 1;
+        int swappedLeft, swappedRight;
+        while (left < right) {
+            // front
+            swappedRight = 0;
+            for (int i = left; i < right; i++) {
+                if (SortUtils.less(array[i + 1], array[i])) {
+                    SortUtils.swap(array, i, i + 1);
+                    swappedRight = i;
+                }
+            }
+            // back
+            right = swappedRight;
+            swappedLeft = length - 1;
+            for (int j = right; j > left; j--) {
+                if (SortUtils.less(array[j], array[j - 1])) {
+                    SortUtils.swap(array, j - 1, j);
+                    swappedLeft = j;
+                }
+            }
+            left = swappedLeft;
+        }
+        return array;
+
+    }
+
+    // Driver Program
+    public static void main(String[] args) {
+        // Integer Input
+        Integer[] integers = {4, 23, 6, 78, 1, 54, 231, 9, 12};
+        CocktailShakerSort shakerSort = new CocktailShakerSort();
+
+        // Output => 1 4 6 9 12 23 54 78 231
+        SortUtils.print(shakerSort.sort(integers));
+
+        // String Input
+        String[] strings = {"c", "a", "e", "b", "d"};
+        SortUtils.print(shakerSort.sort(strings));
+    }
+
+
+}
+
+package Sorts;
+
+import static Sorts.SortUtils.*;
+
+
+/**
+ * Comb Sort algorithm implementation
+ * <p>
+ * Best-case performance O(n * log(n))
+ * Worst-case performance O(n ^ 2)
+ * Worst-case space complexity O(1)
+ * <p>
+ * Comb sort improves on bubble sort.
+ *
+ * @author Sandeep Roy (https://github.com/sandeeproy99)
+ * @author Podshivalov Nikita (https://github.com/nikitap492)
+ * @see BubbleSort
+ * @see SortAlgorithm
+ */
+class CombSort implements SortAlgorithm {
+
+    // To find gap between elements
+    private int nextGap(int gap) {
+        // Shrink gap by Shrink factor
+        gap = (gap * 10) / 13;
+        return (gap < 1) ? 1 : gap;
+    }
+
+    /**
+     * Function to sort arr[] using Comb
+     *
+     * @param arr - an array should be sorted
+     * @return sorted array
+     */
+    @Override
+    public <T extends Comparable<T>> T[] sort(T[] arr) {
+        int size = arr.length;
+
+        // initialize gap
+        int gap = size;
+
+        // Initialize swapped as true to make sure that loop runs
+        boolean swapped = true;
+
+        // Keep running while gap is more than 1 and last iteration caused a swap
+        while (gap != 1 || swapped) {
+            // Find next gap
+            gap = nextGap(gap);
+
+            // Initialize swapped as false so that we can check if swap happened or not
+            swapped = false;
+
+            // Compare all elements with current gap
+            for (int i = 0; i < size - gap; i++) {
+                if (less(arr[i + gap], arr[i])) {
+                    // Swap arr[i] and arr[i+gap]
+                    swapped = swap(arr, i, i + gap);
+                }
+            }
+        }
+        return arr;
+    }
+
+    // Driver method
+    public static void main(String[] args) {
+        CombSort ob = new CombSort();
+        Integer[] arr = {8, 4, 1, 56, 3, -44, -1, 0, 36, 34, 8, 12, -66, -78, 23, -6, 28, 0};
+        ob.sort(arr);
+
+        System.out.println("sorted array");
+        print(arr);
+    }
+}
+
+package Sorts;
+
+import java.util.*;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static Sorts.SortUtils.print;
+
+/**
+ * @author Youssef Ali (https://github.com/youssefAli11997)
+ * @author Podshivalov Nikita (https://github.com/nikitap492)
+ */
+class CountingSort implements SortAlgorithm {
+
+    @Override
+    public <T extends Comparable<T>> T[] sort(T[] unsorted) {
+        return sort(Arrays.asList(unsorted)).toArray(unsorted);
+    }
+
+    /**
+     * This method implements the Generic Counting Sort
+     *
+     * @param list The list to be sorted
+     *             <p>
+     *             Sorts the list in increasing order
+     *             The method uses list elements as keys in the frequency map
+     **/
+    @Override
+    public <T extends Comparable<T>> List<T> sort(List<T> list) {
+
+        Map<T, Integer> frequency = new TreeMap<>();
+        // The final output array
+        List<T> sortedArray = new ArrayList<>(list.size());
+
+        // Counting the frequency of @param array elements
+        list.forEach(v -> frequency.put(v, frequency.getOrDefault(v, 0) + 1));
+
+        // Filling the sortedArray
+        for (Map.Entry<T, Integer> element : frequency.entrySet()) {
+            for (int j = 0; j < element.getValue(); j++) {
+                sortedArray.add(element.getKey());
+            }
+        }
+
+        return sortedArray;
+    }
+
+
+    /**
+     * Stream Counting Sort
+     * The same as method {@link CountingSort#sort(List)} } but this method uses stream API
+     *
+     * @param list The list to be sorted
+     **/
+    private static <T extends Comparable<T>> List<T> streamSort(List<T> list) {
+        return list.stream()
+                .collect(toMap(k -> k, v -> 1, (v1, v2) -> v1 + v2, TreeMap::new))
+                .entrySet()
+                .stream()
+                .flatMap(entry -> IntStream.rangeClosed(1, entry.getValue()).mapToObj(t -> entry.getKey()))
+                .collect(toList());
+    }
+
+    // Driver Program
+    public static void main(String[] args) {
+        // Integer Input
+        List<Integer> unsortedInts = Stream.of(4, 23, 6, 78, 1, 54, 23, 1, 9, 231, 9, 12).collect(toList());
+        CountingSort countingSort = new CountingSort();
+
+        System.out.println("Before Sorting:");
+        print(unsortedInts);
+
+        // Output => 1 1 4 6 9 9 12 23 23 54 78 231
+        System.out.println("After Sorting:");
+        print(countingSort.sort(unsortedInts));
+        System.out.println("After Sorting By Streams:");
+        print(streamSort(unsortedInts));
+
+        System.out.println("\n------------------------------\n");
+
+        // String Input
+        List<String> unsortedStrings = Stream.of("c", "a", "e", "b", "d", "a", "f", "g", "c").collect(toList());
+
+        System.out.println("Before Sorting:");
+        print(unsortedStrings);
+
+        //Output => a a b c c d e f g
+        System.out.println("After Sorting:");
+        print(countingSort.sort(unsortedStrings));
+
+        System.out.println("After Sorting By Streams:");
+        print(streamSort(unsortedStrings));
+
+    }
+}
+
+package Sorts;
+
+import static Sorts.SortUtils.less;
+import static Sorts.SortUtils.print;
+
+/**
+ * @author Podshivalov Nikita (https://github.com/nikitap492)
+ */
+class CycleSort implements SortAlgorithm {
+
+    @Override
+    public <T extends Comparable<T>> T[] sort(T[] arr) {
+        int n = arr.length;
+
+        // traverse array elements
+        for (int j = 0; j <= n - 2; j++) {
+            // initialize item as starting point
+            T item = arr[j];
+
+            // Find position where we put the item.
+            int pos = j;
+            for (int i = j + 1; i < n; i++)
+                if (less(arr[i], item)) pos++;
+
+            // If item is already in correct position
+            if (pos == j) continue;
+
+            // ignore all duplicate elements
+            while (item.compareTo(arr[pos]) == 0)
+                pos += 1;
+
+            // put the item to it's right position
+            if (pos != j) {
+                item = replace(arr, pos, item);
+            }
+
+            // Rotate rest of the cycle
+            while (pos != j) {
+                pos = j;
+
+                // Find position where we put the element
+                for (int i = j + 1; i < n; i++)
+                    if (less(arr[i], item)) {
+                        pos += 1;
+                    }
+
+
+                // ignore all duplicate elements
+                while (item.compareTo(arr[pos]) == 0)
+                    pos += 1;
+
+                // put the item to it's right position
+                if (item != arr[pos]) {
+                    item = replace(arr, pos, item);
+                }
+            }
+        }
+
+        return arr;
+    }
+
+    private <T extends Comparable<T>> T replace(T[] arr, int pos, T item) {
+        T temp = item;
+        item = arr[pos];
+        arr[pos] = temp;
+        return item;
+    }
+
+
+    public static void main(String[] args) {
+        Integer arr[] = {4, 23, 6, 78, 1, 26, 11, 23, 0, -6, 3, 54, 231, 9, 12};
+        CycleSort cycleSort = new CycleSort();
+        cycleSort.sort(arr);
+
+        System.out.println("After sort : ");
+        print(arr);
+    }
+
+}
+
+package Sorts;
+
+import static Sorts.SortUtils.*;
+
+/**
+ * Implementation of gnome sort
+ *
+ * @author Podshivalov Nikita (https://github.com/nikitap492)
+ * @since 2018-04-10
+ **/
+public class GnomeSort implements SortAlgorithm {
+
+    @Override
+    public <T extends Comparable<T>> T[] sort(T[] arr) {
+        int i = 1;
+        int j = 2;
+        while (i < arr.length) {
+            if (less(arr[i - 1], arr[i])) i = j++;
+            else {
+                swap(arr, i - 1, i);
+                if (--i == 0) {
+                    i = j++;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public static void main(String[] args) {
+        Integer[] integers = {4, 23, 6, 78, 1, 26, 11, 23, 0, -6, 3, 54, 231, 9, 12};
+        String[] strings = {"c", "a", "e", "b", "d", "dd", "da", "zz", "AA", "aa", "aB", "Hb", "Z"};
+        GnomeSort gnomeSort = new GnomeSort();
+
+        gnomeSort.sort(integers);
+        gnomeSort.sort(strings);
+
+        System.out.println("After sort : ");
+        print(integers);
+        print(strings);
+
+
+    }
+
+}
+
+package Sorts;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static Sorts.SortUtils.*;
+
+/**
+ * Heap Sort Algorithm
+ * Implements MinHeap
+ *
+ * @author Podshivalov Nikita (https://github.com/nikitap492)
+ */
+public class HeapSort implements SortAlgorithm {
+
+
+    private static class Heap<T extends Comparable<T>> {
+        /**
+         * Array to store heap
+         */
+        private T[] heap;
+
+        /**
+         * Constructor
+         *
+         * @param heap array of unordered integers
+         */
+        public Heap(T[] heap) {
+            this.heap = heap;
+        }
+
+        /**
+         * Heapifies subtree from top as root to last as last child
+         *
+         * @param rootIndex index of root
+         * @param lastChild index of last child
+         */
+        private void heapSubtree(int rootIndex, int lastChild) {
+            int leftIndex = rootIndex * 2 + 1;
+            int rightIndex = rootIndex * 2 + 2;
+            T root = heap[rootIndex];
+            if (rightIndex <= lastChild) { // if has right and left children
+                T left = heap[leftIndex];
+                T right = heap[rightIndex];
+                if (less(left, right) && less(left, root)) {
+                    swap(heap, leftIndex, rootIndex);
+                    heapSubtree(leftIndex, lastChild);
+                } else if (less(right, root)) {
+                    swap(heap, rightIndex, rootIndex);
+                    heapSubtree(rightIndex, lastChild);
+                }
+            } else if (leftIndex <= lastChild) { // if no right child, but has left child
+                T left = heap[leftIndex];
+                if (less(left, root)) {
+                    swap(heap, leftIndex, rootIndex);
+                    heapSubtree(leftIndex, lastChild);
+                }
+            }
+        }
+
+
+        /**
+         * Makes heap with root as root
+         *
+         * @param root index of root of heap
+         */
+        private void makeMinHeap(int root) {
+            int leftIndex = root * 2 + 1;
+            int rightIndex = root * 2 + 2;
+            boolean hasLeftChild = leftIndex < heap.length;
+            boolean hasRightChild = rightIndex < heap.length;
+            if (hasRightChild) { //if has left and right
+                makeMinHeap(leftIndex);
+                makeMinHeap(rightIndex);
+                heapSubtree(root, heap.length - 1);
+            } else if (hasLeftChild) {
+                heapSubtree(root, heap.length - 1);
+            }
+        }
+
+        /**
+         * Gets the root of heap
+         *
+         * @return root of heap
+         */
+        private T getRoot(int size) {
+            swap(heap, 0, size);
+            heapSubtree(0, size - 1);
+            return heap[size]; // return old root
+        }
+
+
+    }
+
+    @Override
+    public <T extends Comparable<T>> T[] sort(T[] unsorted) {
+        return sort(Arrays.asList(unsorted)).toArray(unsorted);
+    }
+
+    @Override
+    public <T extends Comparable<T>> List<T> sort(List<T> unsorted) {
+        int size = unsorted.size();
+
+        @SuppressWarnings("unchecked")
+        Heap<T> heap = new Heap<>(unsorted.toArray((T[]) new Comparable[unsorted.size()]));
+
+        heap.makeMinHeap(0); // make min heap using index 0 as root.
+        List<T> sorted = new ArrayList<>(size);
+        while (size > 0) {
+            T min = heap.getRoot(--size);
+            sorted.add(min);
+        }
+
+        return sorted;
+    }
+
+    /**
+     * Main method
+     *
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        Integer[] heap = {4, 23, 6, 78, 1, 54, 231, 9, 12};
+        HeapSort heapSort = new HeapSort();
+        print(heapSort.sort(heap));
+    }
+
+}
+
+package Sorts;
+
+import static Sorts.SortUtils.less;
+import static Sorts.SortUtils.print;
+
+/**
+ * @author Varun Upadhyay (https://github.com/varunu28)
+ * @author Podshivalov Nikita (https://github.com/nikitap492)
+ */
+
+class InsertionSort implements SortAlgorithm {
+
+    /**
+     * This method implements the Generic Insertion Sort
+     * Sorts the array in increasing order
+     *
+     * @param array The array to be sorted
+     **/
+
+    @Override
+    public <T extends Comparable<T>> T[] sort(T[] array) {
+        for (int j = 1; j < array.length; j++) {
+
+            // Picking up the key(Card)
+            T key = array[j];
+            int i = j - 1;
+
+            while (i >= 0 && less(key, array[i])) {
+                array[i + 1] = array[i];
+                i--;
+            }
+            // Placing the key (Card) at its correct position in the sorted subarray
+            array[i + 1] = key;
+        }
+        return array;
+    }
+
+    // Driver Program
+    public static void main(String[] args) {
+        // Integer Input
+        Integer[] integers = {4, 23, 6, 78, 1, 54, 231, 9, 12};
+
+        InsertionSort sort = new InsertionSort();
+
+        sort.sort(integers);
+
+        // Output => 1 4 6 9 12 23 54 78 231
+        print(integers);
+
+        // String Input
+        String[] strings = {"c", "a", "e", "b", "d"};
+
+        sort.sort(strings);
+
+        //Output => a	b	c	d	e
+        print(strings);
+    }
+}
+
+package Sorts;
+
+import static Sorts.SortUtils.print;
+
+/**
+ * This method implements the Generic Merge Sort
+ *
+ * @author Varun Upadhyay (https://github.com/varunu28)
+ * @author Podshivalov Nikita (https://github.com/nikitap492)
+ * @see SortAlgorithm
+ */
+
+class MergeSort implements SortAlgorithm {
+
+    /**
+     * This method implements the Generic Merge Sort
+     *
+     * @param unsorted the array which should be sorted
+     * @param <T>      Comparable class
+     * @return sorted array
+     */
+    @Override
+    
+    public <T extends Comparable<T>> T[] sort(T[] unsorted) {
+        doSort(unsorted, 0, unsorted.length - 1);
+        return unsorted;
+    }
+
+    /**
+     * @param arr   The array to be sorted
+     * @param left  The first index of the array
+     * @param right The last index of the array
+     *              Recursively sorts the array in increasing order
+     **/
+    private static <T extends Comparable<T>> void doSort(T[] arr, int left, int right) {
+        if (left < right) {
+            int mid = left + (right - left) / 2;
+            doSort(arr, left, mid);
+            doSort(arr, mid + 1, right);
+            merge(arr, left, mid, right);
+        }
+
+    }
+
+    /**
+     * This method implements the merge step of the merge sort
+     *
+     * @param arr   The array to be sorted
+     * @param left  The first index of the array
+     * @param mid   The middle index of the array
+     * @param right The last index of the array
+     *              merges two parts of an array in increasing order
+     **/
+
+    private static <T extends Comparable<T>> void merge(T[] arr, int left, int mid, int right) {
+        int length = right - left + 1;
+        T[] temp = (T[]) new Comparable[length];
+        int i = left;
+        int j = mid + 1;
+        int k = 0;
+
+        while (i <= mid && j <= right) {
+            if (arr[i].compareTo(arr[j]) <= 0) {
+                temp[k++] = arr[i++];
+            } else {
+                temp[k++] = arr[j++];
+            }
+        }
+
+        while (i <= mid) {
+            temp[k++] = arr[i++];
+        }
+
+        while (j <= right) {
+            temp[k++] = arr[j++];
+        }
+
+        System.arraycopy(temp, 0, arr, left, length);
+    }
+
+    // Driver program
+    public static void main(String[] args) {
+
+        // Integer Input
+        Integer[] arr = {4, 23, 6, 78, 1, 54, 231, 9, 12};
+        MergeSort mergeSort = new MergeSort();
+        mergeSort.sort(arr);
+
+        // Output => 1	   4  	 6	9	12	23	54	78	231
+        print(arr);
+
+        // String Inpu
+        String[] stringArray = {"c", "a", "e", "b", "d"};
+        mergeSort.sort(stringArray);
+        //Output => a	b	c	d	e
+        print(stringArray);
+    }
+}
+
+package Sorts;
+
+import static Sorts.SortUtils.*;
+
+/**
+ * Implementation of gnome sort
+ *
+ * @author Podshivalov Nikita (https://github.com/nikitap492)
+ * @since 2018-04-10
+ **/
+public class PancakeSort implements SortAlgorithm {
+
+    @Override
+    public <T extends Comparable<T>> T[] sort(T[] array) {
+        int size = array.length;
+
+        for (int i = 0; i < size; i++) {
+            T max = array[0];
+            int index = 0;
+            for (int j = 0; j < size - i; j++) {
+                if (less(max, array[j])) {
+                    max = array[j];
+                    index = j;
+                }
+            }
+            flip(array, index, array.length - 1 - i);
+        }
+        return array;
+    }
+
+
+    public static void main(String[] args) {
+
+        Integer[] arr = {10, 9, 8, 7, 6, 15, 14, 7, 4, 3, 8, 6, 3, 1, 2, -2, -5, -8, -3, -1, 13, 12, 11, 5, 4, 3, 2, 1};
+        PancakeSort pancakeSort = new PancakeSort();
+        System.out.println("After sorting:");
+        pancakeSort.sort(arr);
+        print(arr);
+    }
+
+
+}
+
+package Sorts;
+
+import static Sorts.SortUtils.*;
+
+/**
+ * @author Varun Upadhyay (https://github.com/varunu28)
+ * @author Podshivalov Nikita (https://github.com/nikitap492)
+ * @see SortAlgorithm
+ */
+class QuickSort implements SortAlgorithm {
+
+    /**
+     * This method implements the Generic Quick Sort
+     *
+     * @param array The array to be sorted
+     *              Sorts the array in increasing order
+     **/
+
+    @Override
+    public <T extends Comparable<T>> T[] sort(T[] array) {
+        doSort(array, 0, array.length - 1);
+        return array;
+    }
+
+
+    /**
+     * The sorting process
+     *
+     * @param left  The first index of an array
+     * @param right The last index of an array
+     * @param array The array to be sorted
+     **/
+
+    private static <T extends Comparable<T>> void doSort(T[] array, int left, int right) {
+        if (left < right) {
+            int pivot = randomPartition(array, left, right);
+            doSort(array, left, pivot - 1);
+            doSort(array, pivot, right);
+        }
+    }
+
+    /**
+     * Ramdomize the array to avoid the basically ordered sequences
+     * 
+     * @param array The array to be sorted
+     * @param left  The first index of an array
+     * @param right The last index of an array
+     * @return the partition index of the array
+     */
+
+    private static <T extends Comparable<T>> int randomPartition(T[] array, int left, int right) {
+        int randomIndex = left + (int)(Math.random()*(right - left + 1));
+        swap(array, randomIndex, right);
+        return partition(array, left, right);
+    }
+
+    /**
+     * This method finds the partition index for an array
+     *
+     * @param array The array to be sorted
+     * @param left  The first index of an array
+     * @param right The last index of an array
+     *              Finds the partition index of an array
+     **/
+
+    private static <T extends Comparable<T>> int partition(T[] array, int left, int right) {
+        int mid = (left + right) / 2;
+        T pivot = array[mid];
+
+        while (left <= right) {
+            while (less(array[left], pivot)) {
+                ++left;
+            }
+            while (less(pivot, array[right])) {
+                --right;
+            }
+            if (left <= right) {
+                swap(array, left, right);
+                ++left;
+                --right;
+            }
+        }
+        return left;
+    }
+
+    // Driver Program
+    public static void main(String[] args) {
+
+        // For integer input
+        Integer[] array = {3, 4, 1, 32, 0, 1, 5, 12, 2, 5, 7, 8, 9, 2, 44, 111, 5};
+
+        QuickSort quickSort = new QuickSort();
+        quickSort.sort(array);
+
+        //Output => 0 1 1 2 2 3 4 5 5 5 7 8 9 12 32 44 111
+        print(array);
+
+        String[] stringArray = {"c", "a", "e", "b", "d"};
+        quickSort.sort(stringArray);
+
+        //Output => a	b	c	d	e
+        print(stringArray);
+    }
+}
+
+
+package Sorts;
+
+import java.util.Arrays;
+
+class RadixSort {
+
+    private static int getMax(int[] arr, int n) {
+        int mx = arr[0];
+        for (int i = 1; i < n; i++)
+            if (arr[i] > mx)
+                mx = arr[i];
+        return mx;
+    }
+
+    private static void countSort(int[] arr, int n, int exp) {
+        int[] output = new int[n];
+        int i;
+        int[] count = new int[10];
+        Arrays.fill(count, 0);
+
+        for (i = 0; i < n; i++)
+            count[(arr[i] / exp) % 10]++;
+
+        for (i = 1; i < 10; i++)
+            count[i] += count[i - 1];
+
+        for (i = n - 1; i >= 0; i--) {
+            output[count[(arr[i] / exp) % 10] - 1] = arr[i];
+            count[(arr[i] / exp) % 10]--;
+        }
+
+        for (i = 0; i < n; i++)
+            arr[i] = output[i];
+    }
+
+    private static void radixsort(int[] arr, int n) {
+
+        int m = getMax(arr, n);
+
+
+        for (int exp = 1; m / exp > 0; exp *= 10)
+            countSort(arr, n, exp);
+    }
+
+
+    static void print(int[] arr, int n) {
+        for (int i = 0; i < n; i++)
+            System.out.print(arr[i] + " ");
+    }
+
+
+    public static void main(String[] args) {
+        int[] arr = {170, 45, 75, 90, 802, 24, 2, 66};
+        int n = arr.length;
+        radixsort(arr, n);
+        print(arr, n);
+    }
+}
+// Written by James Mc Dermott(theycallmemac)
+
+package Sorts;
+
+/**
+ * @author Varun Upadhyay (https://github.com/varunu28)
+ * @author Podshivalov Nikita (https://github.com/nikitap492)
+ * @see SortAlgorithm
+ */
+
+public class SelectionSort implements SortAlgorithm {
+
+    /**
+     * This method implements the Generic Selection Sort
+     *
+     * @param arr The array to be sorted
+     *            Sorts the array in increasing order
+     **/
+    @Override
+    public <T extends Comparable<T>> T[] sort(T[] arr) {
+        int n = arr.length;
+        for (int i = 0; i < n - 1; i++) {
+            // Initial index of min
+            int min = i;
+
+            for (int j = i + 1; j < n; j++) {
+                if (SortUtils.less(arr[j], arr[min])) {
+                    min = j;
+                }
+            }
+
+            // Swapping if index of min is changed
+            if (min != i) {
+                SortUtils.swap(arr, i, min);
+            }
+        }
+
+        return arr;
+    }
+
+    // Driver Program
+    public static void main(String[] args) {
+
+        Integer[] arr = {4, 23, 6, 78, 1, 54, 231, 9, 12};
+
+        SelectionSort selectionSort = new SelectionSort();
+
+        Integer[] sorted = selectionSort.sort(arr);
+
+        // Output => 1	  4	 6	9	12	23	54	78	231
+        SortUtils.print(sorted);
+
+        // String Input
+        String[] strings = {"c", "a", "e", "b", "d"};
+        String[] sortedStrings = selectionSort.sort(strings);
+
+        //Output => a	b	 c  d	e
+        SortUtils.print(sortedStrings);
+    }
+}
+
+package Sorts;
+
+import static Sorts.SortUtils.*;
+
+public class ShellSort implements SortAlgorithm {
+
+    /**
+     * This method implements Generic Shell Sort.
+     *
+     * @param array the array to be sorted
+     */
+    @Override
+    public <T extends Comparable<T>> T[] sort(T[] array) {
+        int length = array.length;
+        int gap = 1;
+
+        /* Calculate gap for optimization purpose */
+        while (gap < length / 3) {
+            gap = 3 * gap + 1;
+        }
+
+        for (; gap > 0; gap /= 3) {
+            for (int i = gap; i < length; i++) {
+                int j;
+                for (j = i; j >= gap && less(array[j], array[j - gap]); j -= gap) {
+                    array[j] = array[j - gap];
+                }
+                array[j] = array[i];
+            }
+        }
+        return array;
+    }
+
+    /* Driver Code */
+    public static void main(String[] args) {
+        Integer[] toSort = {4, 23, 6, 78, 1, 54, 231, 9, 12};
+
+        ShellSort sort = new ShellSort();
+        print(sort.sort(toSort));
+    }
+}
+
+package Sorts;
+
+import java.util.Arrays;
+import java.util.List;
+
+/**
+ * The common interface of most sorting algorithms
+ *
+ * @author Podshivalov Nikita (https://github.com/nikitap492)
+ **/
+public interface SortAlgorithm {
+
+    /**
+     * Main method arrays sorting algorithms
+     *
+     * @param unsorted - an array should be sorted
+     * @return a sorted array
+     */
+    <T extends Comparable<T>> T[] sort(T[] unsorted);
+
+    /**
+     * Auxiliary method for algorithms what wanted to work with lists from JCF
+     *
+     * @param unsorted - a list should be sorted
+     * @return a sorted list
+     */
+    @SuppressWarnings("unchecked")
+    default <T extends Comparable<T>> List<T> sort(List<T> unsorted) {
+        return Arrays.asList(sort(unsorted.toArray((T[]) new Comparable[unsorted.size()])));
+    }
+
+}
+
+package Sorts;
+
+import java.util.Arrays;
+import java.util.List;
+
+/**
+ * The class contains util methods
+ *
+ * @author Podshivalov Nikita (https://github.com/nikitap492)
+ **/
+final class SortUtils {
+
+    /**
+     * Helper method for swapping places in array
+     *
+     * @param array The array which elements we want to swap
+     * @param idx   index of the first element
+     * @param idy   index of the second element
+     */
+    static <T> boolean swap(T[] array, int idx, int idy) {
+        T swap = array[idx];
+        array[idx] = array[idy];
+        array[idy] = swap;
+        return true;
+    }
+
+
+    /**
+     * This method checks if first element is less then the other element
+     *
+     * @param v first element
+     * @param w second element
+     * @return true if the first element is less then the second element
+     */
+    static <T extends Comparable<T>> boolean less(T v, T w) {
+        return v.compareTo(w) < 0;
+    }
+
+
+    /**
+     * Just print list
+     *
+     * @param toPrint - a list which should be printed
+     */
+    static void print(List<?> toPrint) {
+        toPrint.stream()
+                .map(Object::toString)
+                .map(str -> str + " ")
+                .forEach(System.out::print);
+
+        System.out.println();
+    }
+
+
+    /**
+     * Prints an array
+     *
+     * @param toPrint - the array  which should be printed
+     */
+    static void print(Object[] toPrint) {
+        System.out.println(Arrays.toString(toPrint));
+    }
+
+
+    /**
+     * Swaps all position from {@param left} to @{@param right} for {@param array}
+     *
+     * @param array is an array
+     * @param left  is a left flip border of the array
+     * @param right is a right flip border of the array
+     */
+    static <T extends Comparable<T>> void flip(T[] array, int left, int right) {
+        while (left <= right) {
+            swap(array, left++, right--);
+        }
+    }
+}
+

@@ -1,0 +1,721 @@
+package DataStructures.Stacks;
+
+import java.util.Stack;
+
+/**
+ * The nested brackets problem is a problem that determines if a sequence of
+ * brackets are properly nested. A sequence of brackets s is considered properly
+ * nested if any of the following conditions are true: - s is empty - s has the
+ * form (U) or [U] or {U} where U is a properly nested string - s has the form
+ * VW where V and W are properly nested strings For example, the string
+ * "()()[()]" is properly nested but "[(()]" is not. The function called
+ * is_balanced takes as input a string S which is a sequence of brackets and
+ * returns true if S is nested and false otherwise.
+ *
+ * @author akshay sharma
+ * @author <a href="https://github.com/khalil2535">khalil2535<a>
+ * @author shellhub
+ */
+class BalancedBrackets {
+
+    /**
+     * Check if {@code leftBracket} and {@code rightBracket} is paired or not
+     *
+     * @param leftBracket   left bracket
+     * @param rightBracket right bracket
+     * @return {@code true} if {@code leftBracket} and {@code rightBracket} is paired,
+     * otherwise {@code false}
+     */
+    public static boolean isPaired(char leftBracket, char rightBracket) {
+        char[][] pairedBrackets = {
+                {'(', ')'},
+                {'[', ']'},
+                {'{', '}'},
+                {'<', '>'}
+        };
+        for (char[] pairedBracket : pairedBrackets) {
+            if (pairedBracket[0] == leftBracket && pairedBracket[1] == rightBracket) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Check if {@code brackets} is balanced
+     *
+     * @param brackets the brackets
+     * @return {@code true} if {@code brackets} is balanced, otherwise {@code false}
+     */
+    public static boolean isBalanced(String brackets) {
+        if (brackets == null) {
+            throw new IllegalArgumentException("brackets is null");
+        }
+        Stack<Character> bracketsStack = new Stack<>();
+        for (char bracket : brackets.toCharArray()) {
+            switch (bracket) {
+                case '(':
+                case '[':
+                case '{':
+                    bracketsStack.push(bracket);
+                    break;
+                case ')':
+                case ']':
+                case '}':
+                    if (bracketsStack.isEmpty() || !isPaired(bracketsStack.pop(), bracket)) {
+                        return false;
+                    }
+                    break;
+                default: /* other character is invalid */
+                    return false;
+            }
+        }
+        return bracketsStack.isEmpty();
+    }
+
+
+    public static void main(String[] args) {
+        assert isBalanced("[()]{}{[()()]()}");
+        assert !isBalanced("[(])");
+    }
+}
+
+package DataStructures.Stacks;
+
+import java.util.Stack;
+
+public class DecimalToAnyUsingStack {
+    public static void main(String[] args) {
+        assert convert(0, 2).equals("0");
+        assert convert(30, 2).equals("11110");
+        assert convert(30, 8).equals("36");
+        assert convert(30, 10).equals("30");
+        assert convert(30, 16).equals("1E");
+    }
+
+    /**
+     * Convert decimal number to another radix
+     *
+     * @param number the number to be converted
+     * @param radix the radix
+     * @return another radix
+     * @throws ArithmeticException if <tt>number</tt> or <tt>radius</tt> is invalid
+     */
+    private static String convert(int number, int radix) {
+        if (radix < 2 || radix > 16) {
+            throw new ArithmeticException(
+                    String.format("Invalid input -> number:%d,radius:%d", number, radix));
+        }
+        char[] tables = {
+                '0', '1', '2', '3', '4',
+                '5', '6', '7', '8', '9',
+                'A', 'B', 'C', 'D', 'E', 'F'
+        };
+        Stack<Character> bits = new Stack<>();
+        do {
+            bits.push(tables[number % radix]);
+            number = number / radix;
+        } while (number != 0);
+
+        StringBuilder result = new StringBuilder();
+        while (!bits.isEmpty()) {
+            result.append(bits.pop());
+        }
+        return result.toString();
+    }
+}
+
+package DataStructures.Stacks;
+/**
+* Implementation of a stack using nodes.
+* Unlimited size, no arraylist.
+*
+* @author Kyler Smith, 2017
+*/
+
+
+public class NodeStack<Item> {
+
+    /**
+    * Entry point for the program.
+    */
+    public static void main(String[] args) {
+        NodeStack<Integer> Stack = new NodeStack<Integer>();
+
+        Stack.push(3);
+        Stack.push(4);
+        Stack.push(5);
+        System.out.println("Testing :");
+        Stack.print();  			// prints : 5 4 3
+
+        Integer x = Stack.pop(); 	// x = 5
+        Stack.push(1);
+        Stack.push(8);
+        Integer y = Stack.peek();	// y = 8
+        System.out.println("Testing :");
+        Stack.print();				// prints : 8 1 4 3
+
+        System.out.println("Testing :");
+        System.out.println("x : " + x);
+        System.out.println("y : " + y);
+    }
+
+    /**
+    * Information each node should contain.
+    * @value data : information of the value in the node
+    * @value head : the head of the stack
+    * @value next : the next value from this node
+    * @value previous : the last value from this node
+    * @value size : size of the stack
+    */
+    private Item data;
+    private static NodeStack<?> head;
+    private NodeStack<?> next;
+    private NodeStack<?> previous;
+    private static int size = 0;
+
+
+    /**
+    * Constructors for the NodeStack.
+    */
+    public NodeStack() {
+	}
+
+    private NodeStack(Item item) {
+        this.data = item;
+    }
+
+    /**
+    * Put a value onto the stack.
+    *
+    * @param item : value to be put on the stack.
+    */
+    public void push(Item item) {
+
+    	NodeStack<Item> newNs = new NodeStack<Item>(item);
+
+        if(this.isEmpty()) {
+        	NodeStack.setHead(new NodeStack<>(item));
+        	newNs.setNext(null);
+        	newNs.setPrevious(null);
+        } else {
+        	newNs.setPrevious(NodeStack.head);
+        	NodeStack.head.setNext(newNs);
+        	NodeStack.head = newNs;
+        }
+
+        NodeStack.setSize(NodeStack.getSize() + 1);
+    }
+
+    /**
+    * Value to be taken off the stack.
+    *
+    * @return item : value that is returned.
+    */
+    public Item pop() {
+
+    	Item item = (Item) NodeStack.head.getData();
+
+    	NodeStack.head = NodeStack.head.getPrevious();
+    	NodeStack.head.setNext(null);
+
+    	NodeStack.setSize(NodeStack.getSize() - 1);
+
+        return item;
+    }
+
+    /**
+    * Value that is next to be taken off the stack.
+    *
+    * @return item : the next value that would be popped off the stack.
+    */
+    public Item peek() {
+        return (Item) NodeStack.head.getData();
+    }
+
+    /**
+    * If the stack is empty or there is a value in.
+    *
+    * @return boolean : whether or not the stack has anything in it.
+    */
+    public boolean isEmpty() {
+        return NodeStack.getSize() == 0;
+    }
+
+    /**
+    * Returns the size of the stack.
+    *
+    * @return int : number of values in the stack.
+    */
+    public int size() {
+        return NodeStack.getSize();
+    }
+
+    /**
+    * Print the contents of the stack in the following format.
+    *
+    * x <- head (next out)
+    * y
+    * z <- tail (first in)
+    * .
+    * .
+    * .
+    *
+    */
+    public void print() {
+    	for(NodeStack<?> n = NodeStack.head; n != null; n = n.previous) {
+    		System.out.println(n.getData().toString());
+    	}
+    }
+
+    /** Getters and setters (private) */
+    private NodeStack<?> getHead() {
+    	return NodeStack.head;
+    }
+
+    private static void setHead(NodeStack<?> ns) {
+    	NodeStack.head = ns;
+    }
+
+    private NodeStack<?> getNext() {
+		return next;
+	}
+
+    private void setNext(NodeStack<?> next) {
+		this.next = next;
+	}
+
+    private NodeStack<?> getPrevious() {
+		return previous;
+	}
+
+    private void setPrevious(NodeStack<?> previous) {
+		this.previous = previous;
+	}
+
+    private static int getSize() {
+		return size;
+	}
+
+    private static void setSize(int size) {
+		NodeStack.size = size;
+	}
+
+    private Item getData() {
+		return this.data;
+	}
+
+    private void setData(Item item) {
+		this.data = item;
+	}
+}
+
+package DataStructures.Stacks;
+
+/**
+ * This class implements a Stack using a regular array.
+ * <p>
+ * A stack is exactly what it sounds like. An element gets added to the top of
+ * the stack and only the element on the top may be removed. This is an example
+ * of an array implementation of a Stack. So an element can only be added/removed
+ * from the end of the array. In theory stack have no fixed size, but with an
+ * array implementation it does.
+ *
+ * @author Unknown
+ */
+public class StackArray {
+
+    /**
+     * Main method
+     *
+     * @param args Command line arguments
+     */
+    public static void main(String[] args) {
+        // Declare a stack of maximum size 4
+        StackArray myStackArray = new StackArray(4);
+
+        // Populate the stack
+        myStackArray.push(5);
+        myStackArray.push(8);
+        myStackArray.push(2);
+        myStackArray.push(9);
+
+        System.out.println("*********************Stack Array Implementation*********************");
+        System.out.println(myStackArray.isEmpty()); // will print false
+        System.out.println(myStackArray.isFull()); // will print true
+        System.out.println(myStackArray.peek()); // will print 9
+        System.out.println(myStackArray.pop()); // will print 9
+        System.out.println(myStackArray.peek()); // will print 2
+    }
+
+    /**
+     * Default initial capacity.
+     */
+    private static final int DEFAULT_CAPACITY = 10;
+
+    /**
+     * The max size of the Stack
+     */
+    private int maxSize;
+
+    /**
+     * The array representation of the Stack
+     */
+    private int[] stackArray;
+
+    /**
+     * The top of the stack
+     */
+    private int top;
+
+    /**
+     * init Stack with DEFAULT_CAPACITY
+     */
+    public StackArray() {
+        this(DEFAULT_CAPACITY);
+    }
+    
+    /**
+     * Constructor
+     *
+     * @param size Size of the Stack
+     */
+    public StackArray(int size) {
+        maxSize = size;
+        stackArray = new int[maxSize];
+        top = -1;
+    }
+
+    /**
+     * Adds an element to the top of the stack
+     *
+     * @param value The element added
+     */
+    public void push(int value) {
+        if (!isFull()) { // Checks for a full stack
+            top++;
+            stackArray[top] = value;
+        } else {
+            resize(maxSize * 2);
+            push(value); // don't forget push after resizing
+        }
+    }
+
+    /**
+     * Removes the top element of the stack and returns the value you've removed
+     *
+     * @return value popped off the Stack
+     */
+    public int pop() {
+        if (!isEmpty()) { // Checks for an empty stack
+            return stackArray[top--];
+        }
+
+        if (top < maxSize / 4) {
+            resize(maxSize / 2);
+            return pop();// don't forget pop after resizing
+        } else {
+            System.out.println("The stack is already empty");
+            return -1;
+        }
+    }
+
+    /**
+     * Returns the element at the top of the stack
+     *
+     * @return element at the top of the stack
+     */
+    public int peek() {
+        if (!isEmpty()) { // Checks for an empty stack
+            return stackArray[top];
+        } else {
+            System.out.println("The stack is empty, cant peek");
+            return -1;
+        }
+    }
+
+    private void resize(int newSize) {
+        int[] transferArray = new int[newSize];
+
+        for (int i = 0; i < stackArray.length; i++) {
+            transferArray[i] = stackArray[i];
+        }
+        // This reference change might be nice in here
+        stackArray = transferArray;
+        maxSize = newSize;
+    }
+
+    /**
+     * Returns true if the stack is empty
+     *
+     * @return true if the stack is empty
+     */
+    public boolean isEmpty() {
+        return (top == -1);
+    }
+
+    /**
+     * Returns true if the stack is full
+     *
+     * @return true if the stack is full
+     */
+    public boolean isFull() {
+        return (top + 1 == maxSize);
+    }
+
+    /**
+     * Deletes everything in the Stack
+     * <p>
+     * Doesn't delete elements in the array
+     * but if you call push method after calling
+     * makeEmpty it will overwrite previous
+     * values
+     */
+    public void makeEmpty() { // Doesn't delete elements in the array but if you call
+        top = -1;             // push method after calling makeEmpty it will overwrite previous values
+    }
+}
+
+package DataStructures.Stacks;
+
+import java.util.ArrayList;
+
+/**
+ * This class implements a Stack using an ArrayList.
+ * <p>
+ * A stack is exactly what it sounds like. An element gets added to the top of
+ * the stack and only the element on the top may be removed.
+ * <p>
+ * This is an ArrayList Implementation of a stack, where size is not
+ * a problem we can extend the stack as much as we want.
+ *
+ * @author Unknown
+ */
+public class StackArrayList {
+
+    /**
+     * Main method
+     *
+     * @param args Command line arguments
+     */
+    public static void main(String[] args) {
+        
+        StackArrayList myStackArrayList = new StackArrayList();
+        
+        myStackArrayList.push(5);
+        myStackArrayList.push(8);
+        myStackArrayList.push(2);
+        myStackArrayList.push(9);
+
+        System.out.println("*********************Stack List Implementation*********************");
+        System.out.println(myStackArrayList.isEmpty()); // will print false
+        System.out.println(myStackArrayList.peek()); // will print 9
+        System.out.println(myStackArrayList.pop()); // will print 9
+        System.out.println(myStackArrayList.peek()); // will print 2
+        System.out.println(myStackArrayList.pop()); // will print 2
+    }
+
+    /**
+     * ArrayList representation of the stack
+     */
+    private ArrayList<Integer> stackList;
+
+    /**
+     * Constructor
+     */
+    public StackArrayList() {
+        stackList = new ArrayList<>();
+    }
+
+    /**
+     * Adds value to the end of list which
+     * is the top for stack
+     *
+     * @param value value to be added
+     */
+    public void push(int value) {
+        stackList.add(value);
+    }
+
+    /**
+     * Pops last element of list which is indeed
+     * the top for Stack
+     *
+     * @return Element popped
+     */
+    public int pop() {
+
+        if (!isEmpty()) { // checks for an empty Stack
+            int popValue = stackList.get(stackList.size() - 1);
+            stackList.remove(stackList.size() - 1);  // removes the poped element from the list
+            return popValue;
+        }
+
+        System.out.print("The stack is already empty!");
+        return -1;
+    }
+
+    /**
+     * Checks for empty Stack
+     *
+     * @return true if stack is empty
+     */
+    public boolean isEmpty() {
+        return stackList.isEmpty();
+    }
+
+    /**
+     * Top element of stack
+     *
+     * @return top element of stack
+     */
+    public int peek() {
+        return stackList.get(stackList.size() - 1);
+    }
+}
+
+package DataStructures.Stacks;
+
+import java.util.NoSuchElementException;
+
+/**
+ * @author Varun Upadhyay (https://github.com/varunu28)
+ */
+
+// An implementation of a Stack using a Linked List
+
+class StackOfLinkedList {
+
+    public static void main(String[] args) {
+
+        LinkedListStack stack = new LinkedListStack();
+        stack.push(1);
+        stack.push(2);
+        stack.push(3);
+        stack.push(4);
+        stack.push(5);
+
+        System.out.println(stack);
+
+        System.out.println("Size of stack currently is: " + stack.getSize());
+
+        assert stack.pop() == 5;
+        assert stack.pop() == 4;
+
+        System.out.println("Top element of stack currently is: " + stack.peek());
+    }
+}
+
+// A node class
+
+class Node {
+    public int data;
+    public Node next;
+
+    public Node(int data) {
+        this.data = data;
+        this.next = null;
+    }
+}
+
+/**
+ * A class which implements a stack using a linked list
+ * <p>
+ * Contains all the stack methods : push, pop, printStack, isEmpty
+ **/
+
+class LinkedListStack {
+
+    /**
+     * Top of stack
+     */
+    Node head;
+
+    /**
+     * Size of stack
+     */
+    private int size;
+
+    /**
+     * Init properties
+     */
+    public LinkedListStack() {
+        head = null;
+        size = 0;
+    }
+
+    /**
+     * Add element at top
+     *
+     * @param x to be added
+     * @return <tt>true</tt> if add successfully
+     */
+    public boolean push(int x) {
+        Node newNode = new Node(x);
+        newNode.next = head;
+        head = newNode;
+        size++;
+        return true;
+    }
+
+    /**
+     * Pop element at top of stack
+     *
+     * @return element at top of stack
+     * @throws NoSuchElementException if stack is empty
+     */
+    public int pop() {
+        if (size == 0) {
+            throw new NoSuchElementException("Empty stack. Nothing to pop");
+        }
+        Node destroy = head;
+        head = head.next;
+        int retValue = destroy.data;
+        destroy = null; // clear to let GC do it's work
+        size--;
+        return retValue;
+    }
+
+    /**
+     * Peek element at top of stack
+     *
+     * @return element at top of stack
+     * @throws NoSuchElementException if stack is empty
+     */
+    public int peek() {
+        if (size == 0) {
+            throw new NoSuchElementException("Empty stack. Nothing to pop");
+        }
+        return head.data;
+    }
+
+    @Override
+    public String toString() {
+        Node cur = head;
+        StringBuilder builder = new StringBuilder();
+        while (cur != null) {
+            builder.append(cur.data).append("->");
+            cur = cur.next;
+        }
+        return builder.replace(builder.length() - 2, builder.length(), "").toString();
+    }
+
+    /**
+     * Check if stack is empty
+     *
+     * @return <tt>true</tt> if stack is empty, otherwise <tt>false</tt>
+     */
+    public boolean isEmpty() {
+        return size == 0;
+    }
+
+    /**
+     * Return size of stack
+     *
+     * @return size of stack
+     */
+    public int getSize() {
+        return size;
+    }
+}
+

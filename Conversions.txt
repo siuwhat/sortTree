@@ -1,0 +1,932 @@
+package Conversions;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.InputMismatchException;
+import java.util.Scanner;
+
+/**
+ * Class for converting from "any" base to "any" other base, when "any" means from 2-36.
+ * Works by going from base 1 to decimal to base 2. Includes auxiliary method for
+ * determining whether a number is valid for a given base.
+ *
+ * @author Michael Rolland
+ * @version 2017.10.10
+ */
+public class AnyBaseToAnyBase {
+
+    /**
+     * Smallest and largest base you want to accept as valid input
+     */
+    static final int MINIMUM_BASE = 2;
+    static final int MAXIMUM_BASE = 36;
+
+    public static void main(String[] args) {
+        Scanner in = new Scanner(System.in);
+        String n;
+        int b1, b2;
+        while (true) {
+            try {
+                System.out.print("Enter number: ");
+                n = in.next();
+                System.out.print("Enter beginning base (between " + MINIMUM_BASE + " and " + MAXIMUM_BASE + "): ");
+                b1 = in.nextInt();
+                if (b1 > MAXIMUM_BASE || b1 < MINIMUM_BASE) {
+                    System.out.println("Invalid base!");
+                    continue;
+                }
+                if (!validForBase(n, b1)) {
+                    System.out.println("The number is invalid for this base!");
+                    continue;
+                }
+                System.out.print("Enter end base (between " + MINIMUM_BASE + " and " + MAXIMUM_BASE + "): ");
+                b2 = in.nextInt();
+                if (b2 > MAXIMUM_BASE || b2 < MINIMUM_BASE) {
+                    System.out.println("Invalid base!");
+                    continue;
+                }
+                break;
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid input.");
+                in.next();
+            }
+        }
+        System.out.println(base2base(n, b1, b2));
+        in.close();
+    }
+
+    /**
+     * Checks if a number (as a String) is valid for a given base.
+     */
+    public static boolean validForBase(String n, int base) {
+        char[] validDigits = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E',
+                'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
+                'W', 'X', 'Y', 'Z'};
+        // digitsForBase contains all the valid digits for the base given
+        char[] digitsForBase = Arrays.copyOfRange(validDigits, 0, base);
+
+        // Convert character array into set for convenience of contains() method
+        HashSet<Character> digitsList = new HashSet<>();
+        for (int i = 0; i < digitsForBase.length; i++)
+            digitsList.add(digitsForBase[i]);
+
+        // Check that every digit in n is within the list of valid digits for that base.
+        for (char c : n.toCharArray())
+            if (!digitsList.contains(c))
+                return false;
+
+        return true;
+    }
+
+    /**
+     * Method to convert any integer from base b1 to base b2. Works by converting from b1 to decimal,
+     * then decimal to b2.
+     *
+     * @param n  The integer to be converted.
+     * @param b1 Beginning base.
+     * @param b2 End base.
+     * @return n in base b2.
+     */
+    public static String base2base(String n, int b1, int b2) {
+        // Declare variables: decimal value of n,
+        // character of base b1, character of base b2,
+        // and the string that will be returned.
+        int decimalValue = 0, charB2;
+        char charB1;
+        String output = "";
+        // Go through every character of n
+        for (int i = 0; i < n.length(); i++) {
+            // store the character in charB1
+            charB1 = n.charAt(i);
+            // if it is a non-number, convert it to a decimal value >9 and store it in charB2
+            if (charB1 >= 'A' && charB1 <= 'Z')
+                charB2 = 10 + (charB1 - 'A');
+                // Else, store the integer value in charB2
+            else
+                charB2 = charB1 - '0';
+            // Convert the digit to decimal and add it to the
+            // decimalValue of n
+            decimalValue = decimalValue * b1 + charB2;
+        }
+
+        // Converting the decimal value to base b2:
+        // A number is converted from decimal to another base
+        // by continuously dividing by the base and recording
+        // the remainder until the quotient is zero. The number in the
+        // new base is the remainders, with the last remainder
+        // being the left-most digit.
+
+        // While the quotient is NOT zero:
+        while (decimalValue != 0) {
+            // If the remainder is a digit < 10, simply add it to
+            // the left side of the new number.
+            if (decimalValue % b2 < 10)
+                output = Integer.toString(decimalValue % b2) + output;
+                // If the remainder is >= 10, add a character with the
+                // corresponding value to the new number. (A = 10, B = 11, C = 12, ...)
+            else
+                output = (char) ((decimalValue % b2) + 55) + output;
+            // Divide by the new base again
+            decimalValue /= b2;
+        }
+        return output;
+    }
+}
+
+package Conversions;
+
+/**
+ * @author Varun Upadhyay (https://github.com/varunu28)
+ */
+
+// Driver program
+public class AnyBaseToDecimal {
+    public static void main(String[] args) {
+        assert convertToDecimal("1010", 2) == Integer.valueOf("1010", 2);
+        assert convertToDecimal("777", 8) == Integer.valueOf("777", 8);
+        assert convertToDecimal("999", 10) == Integer.valueOf("999", 10);
+        assert convertToDecimal("ABCDEF", 16) == Integer.valueOf("ABCDEF", 16);
+        assert convertToDecimal("XYZ", 36) == Integer.valueOf("XYZ", 36);
+    }
+
+    /**
+     * Convert any radix to decimal number
+     *
+     * @param s     the string to be convert
+     * @param radix the radix
+     * @return decimal of bits
+     * @throws NumberFormatException if {@code bits} or {@code radix} is invalid
+     */
+    public static int convertToDecimal(String s, int radix) {
+        int num = 0;
+        int pow = 1;
+
+        for (int i = s.length() - 1; i >= 0; i--) {
+            int digit = valOfChar(s.charAt(i));
+            if (digit >= radix) {
+                throw new NumberFormatException("For input string " + s);
+            }
+            num += valOfChar(s.charAt(i)) * pow;
+            pow *= radix;
+        }
+        return num;
+    }
+
+    /**
+     * Convert character to integer
+     *
+     * @param c the character
+     * @return represented digit of given character
+     * @throws NumberFormatException if {@code ch} is not UpperCase or Digit character.
+     */
+    public static int valOfChar(char c) {
+        if (!(Character.isUpperCase(c) || Character.isDigit(c))) {
+            throw new NumberFormatException("invalid character :" + c);
+        }
+        return Character.isDigit(c) ? c - '0' : c - 'A' + 10;
+    }
+}
+
+package Conversions;
+
+import java.util.Scanner;
+//given a source number , source base, destination base, this code can give you the destination number.
+//sn ,sb,db ---> ()dn  .   this is what we have to do    .
+
+public class AnytoAny {
+
+    public static void main(String[] args) {
+        Scanner scn = new Scanner(System.in);
+        int sn = scn.nextInt();
+        int sb = scn.nextInt();
+        int db = scn.nextInt();
+        int m = 1, dec = 0, dn = 0;
+        while (sn != 0) {
+            dec = dec + (sn % 10) * m;
+            m *= sb;
+            sn /= 10;
+        }
+        m = 1;
+        while (dec != 0) {
+            dn = dn + (dec % db) * m;
+            m *= 10;
+            dec /= db;
+        }
+        System.out.println(dn);
+        scn.close();
+    }
+
+}
+
+package Conversions;
+
+import java.util.Scanner;
+
+/**
+ * This class converts a Binary number to a Decimal number
+ *
+ */
+class BinaryToDecimal {
+
+    /**
+     * Main Method
+     *
+     * @param args Command line arguments
+     */
+    public static void main(String args[]) {
+        Scanner sc = new Scanner(System.in);
+        int binNum, binCopy, d, s = 0, power = 0;
+        System.out.print("Binary number: ");
+        binNum = sc.nextInt();
+        binCopy = binNum;
+        while (binCopy != 0) {
+            d = binCopy % 10;
+            s += d * (int) Math.pow(2, power++);
+            binCopy /= 10;
+        }
+        System.out.println("Decimal equivalent:" + s);
+        sc.close();
+    }
+}
+
+package Conversions;
+
+import java.util.*;
+
+/**
+ * Converts any Binary Number to a Hexadecimal Number
+ *
+ * @author Nishita Aggarwal
+ */
+public class BinaryToHexadecimal {
+
+    /**
+     * This method converts a binary number to
+     * a hexadecimal number.
+     *
+     * @param binary The binary number
+     * @return The hexadecimal number
+     */
+    static String binToHex(int binary) {
+        //hm to store hexadecimal codes for binary numbers within the range: 0000 to 1111 i.e. for decimal numbers 0 to 15
+        HashMap<Integer, String> hm = new HashMap<>();
+        //String to store hexadecimal code
+        String hex = "";
+        int i;
+        for (i = 0; i < 10; i++) {
+            hm.put(i, String.valueOf(i));
+        }
+        for (i = 10; i < 16; i++) hm.put(i, String.valueOf((char) ('A' + i - 10)));
+        int currbit;
+        while (binary != 0) {
+            int code4 = 0;    //to store decimal equivalent of number formed by 4 decimal digits
+            for (i = 0; i < 4; i++) {
+                currbit = binary % 10;
+                binary = binary / 10;
+                code4 += currbit * Math.pow(2, i);
+            }
+            hex = hm.get(code4) + hex;
+        }
+        return hex;
+    }
+
+    /**
+     * Main method
+     *
+     * @param args Command line arguments
+     */
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Enter binary number:");
+        int binary = sc.nextInt();
+        String hex = binToHex(binary);
+        System.out.println("Hexadecimal Code:" + hex);
+        sc.close();
+    }
+}
+
+package Conversions;
+
+import java.util.Scanner;
+
+/**
+ * Converts any Binary number to an Octal Number
+ *
+ * @author Zachary Jones
+ */
+public class BinaryToOctal {
+
+    /**
+     * Main method
+     *
+     * @param args Command line arguments
+     */
+    public static void main(String args[]) {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Input the binary number: ");
+        int b = sc.nextInt();
+        System.out.println("Octal equivalent: " + convertBinaryToOctal(b));
+        sc.close();
+
+    }
+
+    /**
+     * This method converts a binary number to
+     * an octal number.
+     *
+     * @param binary The binary number
+     * @return The octal number
+     */
+    public static String convertBinaryToOctal(int binary) {
+        String octal = "";
+        int currBit = 0, j = 1;
+        while (binary != 0) {
+            int code3 = 0;
+            for (int i = 0; i < 3; i++) {
+                currBit = binary % 10;
+                binary = binary / 10;
+                code3 += currBit * j;
+                j *= 2;
+            }
+            octal = code3 + octal;
+            j = 1;
+        }
+        return octal;
+    }
+
+}
+
+package Conversions;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+
+/**
+ *
+ * @author Varun Upadhyay (https://github.com/varunu28)
+ *
+ */
+
+// Driver Program
+public class DecimalToAnyBase {
+    public static void main (String[] args) throws Exception{
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        System.out.println("Enter the decimal input below: ");
+        int decInput = Integer.parseInt(br.readLine());
+        System.out.println();
+
+        System.out.println("Enter the base below: ");
+        int base =  Integer.parseInt(br.readLine());
+        System.out.println();
+
+        System.out.println("Decimal Input" + " is: " + decInput);
+        System.out.println("Value of " + decInput + " in base " + base + " is: " + convertToAnyBase(decInput, base));
+
+        br.close();
+    }
+
+    /**
+     * This method produces a String value of any given input decimal in any base
+     * @param inp Decimal of which we need the value in base in String format
+     * @return string format of the converted value in the given base
+     */
+
+    public static String convertToAnyBase(int inp, int base) {
+        ArrayList<Character> charArr = new ArrayList<>();
+
+        while (inp > 0) {
+            charArr.add(reVal(inp%base));
+            inp /= base;
+        }
+
+        StringBuilder str = new StringBuilder(charArr.size());
+
+        for(Character ch: charArr)
+        {
+            str.append(ch);
+        }
+
+        return str.reverse().toString();
+    }
+
+    /**
+     * This method produces character value of the input integer and returns it
+     * @param num integer of which we need the character value of
+     * @return character value of input integer
+     */
+
+    public static char reVal(int num) {
+        if (num >= 0 && num <= 9)
+            return (char)(num + '0');
+        else
+            return (char)(num - 10 + 'A');
+    }
+}
+
+package Conversions;
+
+import java.util.Scanner;
+
+/**
+ * This class converts a Decimal number to a Binary number
+ *
+ *
+ */
+class DecimalToBinary {
+
+    /**
+     * Main Method
+     *
+     * @param args Command Line Arguments
+     */
+    public static void main(String args[]) {
+        conventionalConversion();
+        bitwiseConversion();
+    }
+
+    /**
+     * This method converts a decimal number
+     * to a binary number using a conventional
+     * algorithm.
+     */
+    public static void conventionalConversion() {
+        int n, b = 0, c = 0, d;
+        Scanner input = new Scanner(System.in);
+        System.out.printf("Conventional conversion.\n\tEnter the decimal number: ");
+        n = input.nextInt();
+        while (n != 0) {
+            d = n % 2;
+            b = b + d * (int) Math.pow(10, c++);
+            n /= 2;
+        } //converting decimal to binary
+        System.out.println("\tBinary number: " + b);
+        input.close();
+    }
+
+    /**
+     * This method converts a decimal number
+     * to a binary number using a bitwise
+     * algorithm
+     */
+    public static void bitwiseConversion() {
+        int n, b = 0, c = 0, d;
+        Scanner input = new Scanner(System.in);
+        System.out.printf("Bitwise conversion.\n\tEnter the decimal number: ");
+        n = input.nextInt();
+        while (n != 0) {
+            d = (n & 1);
+            b += d * (int) Math.pow(10, c++);
+            n >>= 1;
+        }
+        System.out.println("\tBinary number: " + b);
+        input.close();
+    }
+
+}
+
+package Conversions;
+
+//hex = [0 - 9] -> [A - F]
+class DecimalToHexaDecimal {
+	private static final int sizeOfIntInHalfBytes = 8;
+	private static final int numberOfBitsInAHalfByte = 4;
+	private static final int halfByte = 0x0F;
+	private static final char[] hexDigits = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E',
+			'F' };
+
+	// Returns the hex value of the dec entered in the parameter.
+	public static String decToHex(int dec) {
+		StringBuilder hexBuilder = new StringBuilder(sizeOfIntInHalfBytes);
+		hexBuilder.setLength(sizeOfIntInHalfBytes);
+		for (int i = sizeOfIntInHalfBytes - 1; i >= 0; --i) {
+			int j = dec & halfByte;
+			hexBuilder.setCharAt(i, hexDigits[j]);
+			dec >>= numberOfBitsInAHalfByte;
+		}
+		return hexBuilder.toString().toLowerCase();
+	}
+
+	// Test above function.
+	public static void main(String[] args) {
+		System.out.println("Test...");
+		int dec = 305445566;
+		String libraryDecToHex = Integer.toHexString(dec);
+		String decToHex = decToHex(dec);
+		System.out.println("Result from the library : " + libraryDecToHex);
+		System.out.println("Result decToHex method : " + decToHex);
+	}
+}
+package Conversions;
+
+import java.util.Scanner;
+
+/**
+ * This class converts Decimal numbers to Octal Numbers
+ *
+ *
+ */
+public class DecimalToOctal {
+    /**
+     * Main Method
+     *
+     * @param args Command line Arguments
+     */
+
+    //enter in a decimal value to get Octal output
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n, k, d, s = 0, c = 0;
+        System.out.print("Decimal number: ");
+        n = sc.nextInt();
+        k = n;
+        while (k != 0) {
+            d = k % 8;
+            s += d * (int) Math.pow(10, c++);
+            k /= 8;
+        }
+
+        System.out.println("Octal equivalent:" + s);
+        sc.close();
+    }
+}
+
+package Conversions;
+
+//Hex [0-9],[A-F] -> Binary [0,1]
+
+public class HexaDecimalToBinary {
+
+    private final int LONG_BITS = 8;
+
+    public void convert(String numHex) {
+        // String a HexaDecimal:
+        int conHex = Integer.parseInt(numHex, 16);
+        // Hex a Binary:
+        String binary = Integer.toBinaryString(conHex);
+        // Output:
+        System.out.println(numHex + " = " + completeDigits(binary));
+    }
+
+    public String completeDigits(String binNum) {
+        for (int i = binNum.length(); i < LONG_BITS; i++) {
+            binNum = "0" + binNum;
+        }
+        return binNum;
+    }
+
+    public static void main(String[] args) {
+
+        //Testing Numbers:
+        String[] hexNums = {"1", "A1", "ef", "BA", "AA", "BB",
+                "19", "01", "02", "03", "04"};
+        HexaDecimalToBinary objConvert = new HexaDecimalToBinary();
+
+        for (String num : hexNums) {
+            objConvert.convert(num);
+        }
+    }
+}
+
+package Conversions;
+
+import java.util.Scanner;
+
+public class HexaDecimalToDecimal {
+
+    // convert hexadecimal to decimal
+    public static int getHexaToDec(String hex) {
+        String digits = "0123456789ABCDEF";
+        hex = hex.toUpperCase();
+        int val = 0;
+        for (int i = 0; i < hex.length(); i++) {
+            int d = digits.indexOf(hex.charAt(i));
+            val = 16 * val + d;
+        }
+        return val;
+    }
+
+    // Main method gets the hexadecimal input from user and converts it into Decimal output.
+
+    public static void main(String args[]) {
+        String hexa_Input;
+        int dec_output;
+        Scanner scan = new Scanner(System.in);
+
+        System.out.print("Enter Hexadecimal Number : ");
+        hexa_Input = scan.nextLine();
+
+        // convert hexadecimal to decimal
+
+        dec_output = getHexaToDec(hexa_Input);
+        /*
+        Pass the string to the getHexaToDec function
+        and it returns the decimal form in the variable dec_output.
+        */
+        System.out.println("Number in Decimal: " + dec_output);
+        scan.close();
+
+    }
+}
+
+package Conversions;
+
+import java.util.Scanner;
+
+/**
+ * Converts any Hexadecimal Number to Octal
+ *
+ * @author Tanmay Joshi
+ */
+public class HexToOct {
+    /**
+     * This method converts a Hexadecimal number to a decimal number
+     *
+     * @param s The Hexadecimal Number
+     * @return The Decimal number
+     */
+    public static int hex2decimal(String s) {
+        String str = "0123456789ABCDEF";
+        s = s.toUpperCase();
+        int val = 0;
+        for (int i = 0; i < s.length(); i++) {
+            char a = s.charAt(i);
+            int n = str.indexOf(a);
+            val = 16 * val + n;
+        }
+        return val;
+    }
+
+    /**
+     * This method converts a Decimal number to a octal number
+     *
+     * @param q The Decimal Number
+     * @return The Octal number
+     */
+    public static int decimal2octal(int q) {
+        int now;
+        int i = 1;
+        int octnum = 0;
+        while (q > 0) {
+            now = q % 8;
+            octnum = (now * (int) (Math.pow(10, i))) + octnum;
+            q /= 8;
+            i++;
+        }
+        octnum /= 10;
+        return octnum;
+    }
+
+    /**
+     * Main method that gets the hex input from user and converts it into octal.
+     * @param args arguments
+     */
+    public static void main(String args[]) {
+        String hexadecnum;
+        int decnum, octalnum;
+        Scanner scan = new Scanner(System.in);
+
+        System.out.print("Enter Hexadecimal Number : ");
+        hexadecnum = scan.nextLine();
+
+        // first convert hexadecimal to decimal
+        decnum = hex2decimal(hexadecnum);       //Pass the string to the hex2decimal function and get the decimal form in variable decnum
+
+        // convert decimal to octal
+        octalnum = decimal2octal(decnum);
+        System.out.println("Number in octal: " + octalnum);
+        scan.close();
+    }
+}
+
+package Conversions;
+
+/**
+ * Converting Integers into Roman Numerals
+ *
+ *('I', 1);
+ *('IV',4);
+ *('V', 5);
+ *('IV',9);
+ *('X', 10);
+ *('XL',40;
+ *('L', 50);
+ *('XC',90);
+ *('C', 100);
+ *('D', 500);
+ *('M', 1000);
+ *
+ */
+
+
+public class IntegerToRoman {
+    private static int[] allArabianRomanNumbers = new int[]{1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1};
+    private static String[] allRomanNumbers = new String[]{"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"};
+
+    //Value must be > 0
+
+    public static String integerToRoman(int num) {
+        if (num <= 0) {
+            return "";
+        }
+
+        StringBuilder builder = new StringBuilder();
+
+        for (int a = 0; a < allArabianRomanNumbers.length; a++) {
+            int times = num / allArabianRomanNumbers[a];
+            for (int b = 0; b < times; b++) {
+                builder.append(allRomanNumbers[a]);
+            }
+
+            num -= times * allArabianRomanNumbers[a];
+        }
+
+        return builder.toString();
+    }
+
+    public static void main(String[] args) {
+        System.out.println(IntegerToRoman.integerToRoman(2131));
+    }
+}
+
+package Conversions;
+
+import java.util.Scanner;
+
+/**
+ * Converts any Octal Number to a Decimal Number
+ * 
+ * @author Zachary Jones
+ *
+ */
+public class OctalToDecimal {
+
+	/**
+	 * Main method
+	 * 
+	 * @param args
+	 *            Command line arguments
+	 */
+	public static void main(String args[]) {
+		Scanner sc = new Scanner(System.in);
+		System.out.print("Octal Input: ");
+		String inputOctal = sc.nextLine();
+		int result = convertOctalToDecimal(inputOctal);
+		if (result != -1)
+			System.out.println("Result convertOctalToDecimal : " + result);
+		sc.close();
+	}
+
+	/**
+	 * This method converts an octal number to a decimal number.
+	 * 
+	 * @param inputOctal
+	 *            The octal number
+	 * @return The decimal number
+	 */
+	public static int convertOctalToDecimal(String inputOctal) {
+
+		try {
+			// Actual conversion of Octal to Decimal:
+			Integer outputDecimal = Integer.parseInt(inputOctal, 8);
+			return outputDecimal;
+		} catch (NumberFormatException ne) {
+			// Printing a warning message if the input is not a valid octal
+			// number:
+			System.out.println("Invalid Input, Expecting octal number 0-7");
+			return -1;
+		}
+	}
+}
+package Conversions;
+
+import java.util.Scanner;
+
+/**
+ * Converts any Octal Number to HexaDecimal
+ *
+ * @author Tanmay Joshi
+ */
+public class OctalToHexadecimal {
+
+    /**
+     * This method converts a Octal number to a decimal number
+     *
+     * @param s The Octal Number
+     * @return The Decimal number
+     */
+    public static int OctToDec(String s) {
+        int i = 0;
+        for (int j = 0; j < s.length(); j++) {
+            char num = s.charAt(j);
+            num -= '0';
+            i *= 8;
+            i += num;
+        }
+        return i;
+    }
+
+    /**
+     * This method converts a Decimal number to a Hexadecimal number
+     *
+     * @param d The Decimal Number
+     * @return The Hexadecimal number
+     */
+    public static String DecimalToHex(int d) {
+        String digits = "0123456789ABCDEF";
+        if (d <= 0)
+            return "0";
+        String hex = "";
+        while (d > 0) {
+            int digit = d % 16;
+            hex = digits.charAt(digit) + hex;
+            d = d / 16;
+        }
+        return hex;
+    }
+
+
+    public static void main(String args[]) {
+
+        Scanner input = new Scanner(System.in);
+        System.out.print("Enter the Octal number: ");
+        // Take octal number as input from user in a string
+        String oct = input.next();
+
+        // Pass the octal number to function and get converted deciaml form
+        int decimal = OctToDec(oct);
+
+        // Pass the decimla number to function and get converted Hex form of the number
+        String hex = DecimalToHex(decimal);
+        System.out.println("The Hexadecimal equivalant is: " + hex);
+        input.close();
+    }
+}
+
+
+package Conversions;
+
+import java.util.*;
+
+public class RomanToInteger {
+
+    private static Map<Character, Integer> map = new HashMap<Character, Integer>() {
+        /**
+        *
+        */
+        private static final long serialVersionUID = 87605733047260530L;
+
+        {
+        put('I', 1);
+        put('V', 5);
+        put('X', 10);
+        put('L', 50);
+        put('C', 100);
+        put('D', 500);
+        put('M', 1000);
+    }};
+    //Roman Number = Roman Numerals
+
+    /**
+     * This function convert Roman number into Integer
+     *
+     * @param A Roman number string
+     * @return integer
+     */
+    public static int romanToInt(String A) {
+
+        char prev = ' ';
+
+        int sum = 0;
+
+        int newPrev = 0;
+        for (int i = A.length() - 1; i >= 0; i--) {
+            char c = A.charAt(i);
+
+            if (prev != ' ') {
+                // checking current Number greater then previous or not
+                newPrev = map.get(prev) > newPrev ? map.get(prev) : newPrev;
+            }
+
+            int currentNum = map.get(c);
+
+            // if current number greater then prev max previous then add
+            if (currentNum >= newPrev) {
+                sum += currentNum;
+            } else {
+                // subtract upcoming number until upcoming number not greater then prev max
+                sum -= currentNum;
+            }
+
+            prev = c;
+        }
+
+        return sum;
+    }
+
+    public static void main(String[] args) {
+        int sum = romanToInt("MDCCCIV");
+        System.out.println(sum);
+    }
+} 
+

@@ -1,0 +1,949 @@
+package DataStructures.Lists;
+
+public class CircleLinkedList<E> {
+    private static class Node<E> {
+        Node<E> next;
+        E value;
+
+        private Node(E value, Node<E> next) {
+            this.value = value;
+            this.next = next;
+        }
+    }
+
+    //For better O.O design this should be private allows for better black box design
+    private int size;
+    //this will point to dummy node;
+    private Node<E> head;
+
+    //constructer for class.. here we will make a dummy node for circly linked list implementation with reduced error catching as our list will never be empty;
+    public CircleLinkedList() {
+        //creation of the dummy node
+        head = new Node<E>(null, head);
+        size = 0;
+    }
+
+    // getter for the size... needed because size is private.
+    public int getSize() {
+        return size;
+    }
+
+    // for the sake of simplistiy this class will only contain the append function or addLast other add functions can be implemented however this is the basses of them all really.
+    public void append(E value) {
+        if (value == null) {
+            // we do not want to add null elements to the list.
+            throw new NullPointerException("Cannot add null element to the list");
+        }
+        //head.next points to the last element;
+        head.next = new Node<E>(value, head);
+        size++;
+    }
+
+    public E remove(int pos) {
+        if (pos > size || pos < 0) {
+            //catching errors
+            throw new IndexOutOfBoundsException("position cannot be greater than size or negative");
+        }
+        //we need to keep track of the element before the element we want to remove we can see why bellow.
+        Node<E> before = head;
+        for (int i = 1; i <= pos; i++) {
+            before = before.next;
+        }
+        Node<E> destroy = before.next;
+        E saved = destroy.value;
+        // assigning the next reference to the the element following the element we want to remove... the last element will be assigned to the head.
+        before.next = before.next.next;
+        // scrubbing
+        destroy = null;
+        size--;
+        return saved;
+
+    }
+
+}
+
+package DataStructures.Lists;
+
+import java.util.Objects;
+
+public class CursorLinkedList<T> {
+
+    
+    private static class Node<T> {
+
+        T element;
+        int next;
+
+        Node(T element, int next) {
+            this.element = element;
+            this.next = next;
+        }
+    }
+
+    private final int os;
+    private int head;
+    private final Node<T>[] cursorSpace;
+    private int count;
+    private final static int CURSOR_SPACE_SIZE = 100;
+
+
+    
+    {
+        // init at loading time
+        cursorSpace = new Node[CURSOR_SPACE_SIZE];
+        for (int i = 0; i < CURSOR_SPACE_SIZE; i++) {
+            cursorSpace[i] = new Node<>(null, i + 1);
+        }
+        cursorSpace[CURSOR_SPACE_SIZE - 1].next = 0;
+    }
+
+
+    public CursorLinkedList() {
+        os = 0;
+        count = 0;
+        head = -1;
+    }
+
+    public void printList() {
+
+        if (head != -1) {
+
+
+            int start = head;
+            while (start != -1) {
+
+                T element = cursorSpace[start].element;
+                System.out.println(element.toString());
+                start = cursorSpace[start].next;
+            }
+        }
+
+    }
+
+
+    /**
+     * @return the logical index of the element within the list , not the actual
+     * index of the [cursorSpace] array
+     */
+    public int indexOf(T element) {
+
+
+        Objects.requireNonNull(element);
+        Node<T> iterator = cursorSpace[head];
+        for (int i = 0; i < count; i++) {
+            if (iterator.element.equals(element)) {
+                return i;
+            }
+            iterator = cursorSpace[iterator.next];
+        }
+
+
+        return -1;
+    }
+
+
+    /**
+     * @param position , the logical index of the element , not the actual one
+     *                 within the [cursorSpace] array .
+     *                 this method should be used to get the index give by indexOf() method.
+     * @return
+     */
+
+    public T get(int position) {
+
+        if (position >= 0 && position < count) {
+
+            int start = head;
+            int counter = 0;
+            while (start != -1) {
+
+                T element = cursorSpace[start].element;
+                if (counter == position) {
+                    return element;
+                }
+
+                start = cursorSpace[start].next;
+                counter++;
+            }
+
+        }
+
+        return null;
+    }
+
+
+    public void removeByIndex(int index) {
+
+        if (index >= 0 && index < count) {
+
+            T element = get(index);
+            remove(element);
+        }
+
+    }
+
+    public void remove(T element) {
+
+
+        Objects.requireNonNull(element);
+
+        // case element is in the head
+        T temp_element = cursorSpace[head].element;
+        int temp_next = cursorSpace[head].next;
+        if (temp_element.equals(element)) {
+            free(head);
+            head = temp_next;
+        } else { // otherwise cases
+
+            int prev_index = head;
+            int current_index = cursorSpace[prev_index].next;
+
+            while (current_index != -1) {
+
+                T current_element = cursorSpace[current_index].element;
+                if (current_element.equals(element)) {
+                    cursorSpace[prev_index].next = cursorSpace[current_index].next;
+                    free(current_index);
+                    break;
+                }
+
+                prev_index = current_index;
+                current_index = cursorSpace[prev_index].next;
+            }
+
+        }
+
+
+        count--;
+
+    }
+
+    private void free(int index) {
+
+        Node os_node = cursorSpace[os];
+        int os_next = os_node.next;
+        cursorSpace[os].next = index;
+        cursorSpace[index].element = null;
+        cursorSpace[index].next = os_next;
+
+    }
+
+
+    public void append(T element) {
+
+        Objects.requireNonNull(element);
+        int availableIndex = alloc();
+        cursorSpace[availableIndex].element = element;
+
+        if (head == -1) {
+            head = availableIndex;
+        }
+
+        int iterator = head;
+        while (cursorSpace[iterator].next != -1) {
+            iterator = cursorSpace[iterator].next;
+        }
+
+        cursorSpace[iterator].next = availableIndex;
+        cursorSpace[availableIndex].next = -1;
+
+
+        count++;
+    }
+
+    /**
+     * @return the index of the next available node
+     */
+    private int alloc() {
+
+
+        //1- get the index at which the os is pointing
+        int availableNodeIndex = cursorSpace[os].next;
+
+        if (availableNodeIndex == 0) {
+            throw new OutOfMemoryError();
+        }
+
+        //2- make the os point to the next of the  @var{availableNodeIndex}
+        int availableNext = cursorSpace[availableNodeIndex].next;
+        cursorSpace[os].next = availableNext;
+
+        // this to indicate an end of the list , helpful at testing since any err
+        // would throw an outOfBoundException
+        cursorSpace[availableNodeIndex].next = -1;
+
+        return availableNodeIndex;
+
+    }
+
+
+}
+
+package DataStructures.Lists;
+
+/**
+ * This class implements a DoublyLinkedList. This is done using the classes
+ * LinkedList and Link.
+ * <p>
+ * A linked list is similar to an array, it holds values. However,
+ * links in a linked list do not have indexes. With a linked list
+ * you do not need to predetermine it's size as it grows and shrinks
+ * as it is edited. This is an example of a double ended, doubly
+ * linked list. Each link references the next link and the previous
+ * one.
+ *
+ * @author Unknown
+ */
+
+public class DoublyLinkedList {
+    /**
+     * Head refers to the front of the list
+     */
+    private Link head;
+    /**
+     * Tail refers to the back of the list
+     */
+    private Link tail;
+
+    /**
+     * Default Constructor
+     */
+    public DoublyLinkedList() {
+        head = null;
+        tail = null;
+    }
+
+    /**
+     * Constructs a list containing the elements of the array
+     *
+     * @param array the array whose elements are to be placed into this list
+     * @throws NullPointerException if the specified collection is null
+     */
+    public DoublyLinkedList(int[] array) {
+        if (array == null) throw new NullPointerException();
+        for (int i : array) {
+            insertTail(i);
+        }
+    }
+
+    /**
+     * Insert an element at the head
+     *
+     * @param x Element to be inserted
+     */
+    public void insertHead(int x) {
+        Link newLink = new Link(x); // Create a new link with a value attached to it
+        if (isEmpty()) // Set the first element added to be the tail
+            tail = newLink;
+        else
+            head.previous = newLink; // newLink <-- currenthead(head)
+        newLink.next = head; // newLink <--> currenthead(head)
+        head = newLink; // newLink(head) <--> oldhead
+    }
+
+    /**
+     * Insert an element at the tail
+     *
+     * @param x Element to be inserted
+     */
+    public void insertTail(int x) {
+        Link newLink = new Link(x);
+        newLink.next = null; // currentTail(tail)     newlink -->
+        if (isEmpty()) {        // Check if there are no elements in list then it adds first element
+            tail = newLink;
+            head = tail;
+        } else {
+            tail.next = newLink; // currentTail(tail) --> newLink -->
+            newLink.previous = tail; // currentTail(tail) <--> newLink -->
+            tail = newLink; // oldTail <--> newLink(tail) -->
+        }
+    }
+
+    /**
+     * Delete the element at the head
+     *
+     * @return The new head
+     */
+    public Link deleteHead() {
+        Link temp = head;
+        head = head.next; // oldHead <--> 2ndElement(head)
+        head.previous = null; // oldHead --> 2ndElement(head) nothing pointing at old head so will be removed
+        if (head == null)
+            tail = null;
+        return temp;
+    }
+
+    /**
+     * Delete the element at the tail
+     *
+     * @return The new tail
+     */
+    public Link deleteTail() {
+        Link temp = tail;
+        tail = tail.previous; // 2ndLast(tail) <--> oldTail --> null
+        tail.next = null; // 2ndLast(tail) --> null
+        if (tail == null) {
+            head = null;
+        }
+        return temp;
+    }
+
+    /**
+     * Delete the element from somewhere in the list
+     *
+     * @param x element to be deleted
+     * @return Link deleted
+     */
+    public void delete(int x) {
+        Link current = head;
+
+        while (current.value != x) {// Find the position to delete
+            if (current != tail) {
+                current = current.next;
+            } else {// If we reach the tail and the element is still not found
+                throw new RuntimeException("The element to be deleted does not exist!");
+            }
+        }
+
+        if (current == head)
+            deleteHead();
+
+        else if (current == tail)
+            deleteTail();
+
+        else { // Before: 1 <--> 2(current) <--> 3
+            current.previous.next = current.next;  // 1 --> 3
+            current.next.previous = current.previous; // 1 <--> 3
+        }
+    }
+
+    /**
+     * Inserts element and reorders
+     *
+     * @param x Element to be added
+     */
+    public void insertOrdered(int x) {
+        Link newLink = new Link(x);
+        Link current = head;
+        while (current != null && x > current.value) // Find the position to insert
+            current = current.next;
+
+        if (current == head)
+            insertHead(x);
+
+        else if (current == null)
+            insertTail(x);
+
+        else { // Before: 1 <--> 2(current) <--> 3
+            newLink.previous = current.previous; // 1 <-- newLink
+            current.previous.next = newLink; // 1 <--> newLink
+            newLink.next = current; // 1 <--> newLink --> 2(current) <--> 3
+            current.previous = newLink; // 1 <--> newLink <--> 2(current) <--> 3
+        }
+    }
+
+    /**
+     * Returns true if list is empty
+     *
+     * @return true if list is empty
+     */
+    public boolean isEmpty() {
+        return (head == null);
+    }
+
+    /**
+     * Prints contents of the list
+     */
+    public void display() { // Prints contents of the list
+        Link current = head;
+        while (current != null) {
+            current.displayLink();
+            current = current.next;
+        }
+        System.out.println();
+    }
+}
+
+/**
+ * This class is used to implement the nodes of the
+ * linked list.
+ *
+ * @author Unknown
+ */
+class Link {
+    /**
+     * Value of node
+     */
+    public int value;
+    /**
+     * This points to the link in front of the new link
+     */
+    public Link next;
+    /**
+     * This points to the link behind the new link
+     */
+    public Link previous;
+
+    /**
+     * Constructor
+     *
+     * @param value Value of node
+     */
+    public Link(int value) {
+        this.value = value;
+    }
+
+    /**
+     * Displays the node
+     */
+    public void displayLink() {
+        System.out.print(value + " ");
+    }
+
+    /**
+     * Main Method
+     *
+     * @param args Command line arguments
+     */
+    public static void main(String args[]) {
+        DoublyLinkedList myList = new DoublyLinkedList();
+        myList.insertHead(13);
+        myList.insertHead(7);
+        myList.insertHead(10);
+        myList.display(); // <-- 10(head) <--> 7 <--> 13(tail) -->
+
+        myList.insertTail(11);
+        myList.display(); // <-- 10(head) <--> 7 <--> 13 <--> 11(tail) -->
+
+        myList.deleteTail();
+        myList.display(); // <-- 10(head) <--> 7 <--> 13(tail) -->
+
+        myList.delete(7);
+        myList.display(); // <-- 10(head) <--> 13(tail) -->
+
+        myList.insertOrdered(23);
+        myList.insertOrdered(67);
+        myList.insertOrdered(3);
+        myList.display(); // <-- 3(head) <--> 10 <--> 13 <--> 23 <--> 67(tail) -->
+    }
+}
+
+package DataStructures.Lists;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * @author https://github.com/shellhub
+ */
+
+public class MergeSortedArrayList {
+    public static void main(String[] args) {
+        List<Integer> listA = new ArrayList<>();
+        List<Integer> listB = new ArrayList<>();
+        List<Integer> listC = new ArrayList<>();
+
+        /* init ListA and List B */
+        for (int i = 1; i <= 10; i += 2) {
+            listA.add(i);          /* listA: [1, 3, 5, 7, 9]  */
+            listB.add(i + 1);      /* listB: [2, 4, 6, 8, 10] */
+        }
+
+        /* merge listA and listB to listC */
+        merge(listA, listB, listC);
+
+        System.out.println("listA: " + listA);
+        System.out.println("listB: " + listB);
+        System.out.println("listC: " + listC);
+    }
+
+    /**
+     * merge two sorted ArrayList
+     *
+     * @param listA the first list to merge
+     * @param listB the second list to merge
+     * @param listC the result list after merging
+     */
+    public static void merge(List<Integer> listA, List<Integer> listB, List<Integer> listC) {
+        int pa = 0; /* the index of listA */
+        int pb = 0; /* the index of listB */
+
+        while (pa < listA.size() && pb < listB.size()) {
+            if (listA.get(pa) <= listB.get(pb)) {
+                listC.add(listA.get(pa++));
+            } else {
+                listC.add(listB.get(pb++));
+            }
+        }
+
+        /* copy left element of listA to listC */
+        while (pa < listA.size()) {
+            listC.add(listA.get(pa++));
+        }
+
+        /* copy left element of listB to listC */
+        while (pb < listB.size()) {
+            listC.add(listB.get(pb++));
+        }
+    }
+
+}
+
+package DataStructures.Lists;
+
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.PriorityQueue;
+
+/**
+ * @author Arun Pandey (https://github.com/pandeyarun709)
+ */
+public class Merge_K_SortedLinkedlist {
+
+    /**
+     * This function merge K sorted LinkedList
+     *
+     * @param a array of LinkedList
+     * @param N size of array
+     * @return node
+     */
+    Node mergeKList(Node[] a, int N) {
+        // Min Heap
+        PriorityQueue<Node> min = new PriorityQueue<>(Comparator.comparingInt(x -> x.data));
+
+        // adding head of all linkedList in min heap
+        min.addAll(Arrays.asList(a).subList(0, N));
+
+        // Make new head among smallest heads in K linkedList 
+        Node head = min.poll();
+        min.add(head.next);
+        Node curr = head;
+
+        // merging LinkedList
+        while (!min.isEmpty()) {
+
+            Node temp = min.poll();
+            curr.next = temp;
+            curr = temp;
+
+            // Add Node in min Heap only if temp.next is not null
+            if (temp.next != null) {
+                min.add(temp.next);
+            }
+        }
+
+        return head;
+    }
+
+    private class Node {
+        private int data;
+        private Node next;
+
+        public Node(int d) {
+            this.data = d;
+            next = null;
+        }
+    }
+}
+
+package DataStructures.Lists;
+
+/**
+ * This class implements a SinglyLinked List. This is done
+ * using SinglyLinkedList class and a LinkForLinkedList Class.
+ * <p>
+ * A linked list is similar to an array, it hold values.
+ * However, links in a linked list do not have indexes. With
+ * a linked list you do not need to predetermine it's size as
+ * it grows and shrinks as it is edited. This is an example of
+ * a singly linked list. Elements can only be added/removed
+ * at the head/front of the list.
+ */
+public class SinglyLinkedList {
+    /**
+     * Head refer to the front of the list
+     */
+    private Node head;
+
+    /**
+     * size of SinglyLinkedList
+     */
+    private int size;
+
+    /**
+     * init SinglyLinkedList
+     */
+    public SinglyLinkedList() {
+        head = new Node(0);
+        size = 0;
+    }
+
+    /**
+     * Init SinglyLinkedList with specified head node and size
+     *
+     * @param head the head node of list
+     * @param size the size of list
+     */
+    public SinglyLinkedList(Node head, int size) {
+        this.head = head;
+        this.size = size;
+    }
+
+    /**
+     * This method inserts an element at the head
+     *
+     * @param x Element to be added
+     */
+    public void insertHead(int x) {
+        insertNth(x, 0);
+    }
+
+    /**
+     * insert an element at the tail of list
+     *
+     * @param data Element to be added
+     */
+    public void insert(int data) {
+        insertNth(data, size);
+    }
+
+    /**
+     * Inserts a new node at a specified position
+     *
+     * @param data     data to be stored in a new node
+     * @param position position at which a new node is to be inserted
+     */
+    public void insertNth(int data, int position) {
+        checkBounds(position, 0, size);
+        Node cur = head;
+        for (int i = 0; i < position; ++i) {
+            cur = cur.next;
+        }
+        Node node = new Node(data);
+        node.next = cur.next;
+        cur.next = node;
+        size++;
+    }
+
+    /**
+     * Insert element to list, always sorted
+     *
+     * @param data to be inserted
+     */
+    public void insertSorted(int data) {
+        Node cur = head;
+        while (cur.next != null && data > cur.next.value) {
+            cur = cur.next;
+        }
+
+        Node newNode = new Node(data);
+        newNode.next = cur.next;
+        cur.next = newNode;
+        size++;
+    }
+
+    /**
+     * This method deletes an element at the head
+     *
+     * @return The element deleted
+     */
+    public void deleteHead() {
+        deleteNth(0);
+    }
+
+    /**
+     * This method deletes an element at the tail
+     */
+    public void delete() {
+        deleteNth(size - 1);
+    }
+
+    /**
+     * This method deletes an element at Nth position
+     */
+    public void deleteNth(int position) {
+        checkBounds(position, 0, size - 1);
+        Node cur = head;
+        for (int i = 0; i < position; ++i) {
+            cur = cur.next;
+        }
+
+        //Node destroy = cur.next;
+        cur.next = cur.next.next;
+        //destroy = null; // clear to let GC do its work
+
+        size--;
+    }
+
+    /**
+     * @param position to check position
+     * @param low      low index
+     * @param high     high index
+     * @throws IndexOutOfBoundsException if {@code position} not in range {@code low} to {@code high}
+     */
+    public void checkBounds(int position, int low, int high) {
+        if (position > high || position < low) {
+            throw new IndexOutOfBoundsException(position + "");
+        }
+    }
+
+    /**
+     * clear all nodes in list
+     */
+    public void clear() {
+        if (size == 0) {
+            return;
+        }
+        Node prev = head.next;
+        Node cur = prev.next;
+        while (cur != null) {
+            prev = null; // clear to let GC do its work
+            prev = cur;
+            cur = cur.next;
+        }
+        prev = null;
+        head.next = null;
+        size = 0;
+    }
+
+    /**
+     * Checks if the list is empty
+     *
+     * @return true is list is empty
+     */
+    public boolean isEmpty() {
+        return size == 0;
+    }
+
+    /**
+     * Returns the size of the linked list
+     */
+    public int size() {
+        return size;
+    }
+
+    @Override
+    public String toString() {
+        if (size == 0) {
+            return "";
+        }
+        StringBuilder builder = new StringBuilder();
+        Node cur = head.next;
+        while (cur != null) {
+            builder.append(cur.value).append("->");
+            cur = cur.next;
+        }
+        return builder.replace(builder.length() - 2, builder.length(), "").toString();
+    }
+
+    /**
+     * Merge two sorted SingleLinkedList
+     *
+     * @param listA the first sorted list
+     * @param listB the second sored list
+     * @return merged sorted list
+     */
+    public static SinglyLinkedList merge(SinglyLinkedList listA, SinglyLinkedList listB) {
+        Node headA = listA.head.next;
+        Node headB = listB.head.next;
+
+        int size = listA.size() + listB.size();
+
+        Node head = new Node();
+        Node tail = head;
+        while (headA != null && headB != null) {
+            if (headA.value <= headB.value) {
+                tail.next = headA;
+                headA = headA.next;
+            } else {
+                tail.next = headB;
+                headB = headB.next;
+            }
+            tail = tail.next;
+        }
+        if (headA == null) {
+            tail.next = headB;
+        }
+        if (headB == null) {
+            tail.next = headA;
+        }
+        return new SinglyLinkedList(head, size);
+    }
+
+    /**
+     * Main method
+     *
+     * @param args Command line arguments
+     */
+    public static void main(String args[]) {
+        SinglyLinkedList myList = new SinglyLinkedList();
+        assert myList.isEmpty();
+        assert myList.toString().equals("");
+
+        myList.insertHead(5);
+        myList.insertHead(7);
+        myList.insertHead(10);
+        assert myList.toString().equals("10->7->5");
+
+        myList.deleteHead();
+        assert myList.toString().equals("7->5");
+
+        myList.insertNth(11, 2);
+        assert myList.toString().equals("7->5->11");
+
+        myList.deleteNth(1);
+        assert myList.toString().equals("7->11");
+
+        myList.clear();
+        assert myList.isEmpty();
+
+        /* Test MergeTwoSortedLinkedList */
+        SinglyLinkedList listA = new SinglyLinkedList();
+        SinglyLinkedList listB = new SinglyLinkedList();
+
+        for (int i = 10; i >= 2; i -= 2) {
+            listA.insertSorted(i);
+            listB.insertSorted(i - 1);
+        }
+        assert listA.toString().equals("2->4->6->8->10");
+        assert listB.toString().equals("1->3->5->7->9");
+        assert SinglyLinkedList.merge(listA, listB).toString().equals("1->2->3->4->5->6->7->8->9->10");
+
+    }
+}
+
+/**
+ * This class is the nodes of the SinglyLinked List.
+ * They consist of a value and a pointer to the node
+ * after them.
+ */
+class Node {
+    /**
+     * The value of the node
+     */
+    int value;
+
+    /**
+     * Point to the next node
+     */
+    Node next;
+
+    Node() {
+
+    }
+
+    /**
+     * Constructor
+     *
+     * @param value Value to be put in the node
+     */
+    Node(int value) {
+        this(value, null);
+    }
+
+    Node(int value, Node next) {
+        this.value = value;
+        this.next = next;
+    }
+}
+

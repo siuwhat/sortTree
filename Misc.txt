@@ -1,0 +1,168 @@
+package Misc;
+
+public class heap_sort {
+    public void sort(int[] arr) {
+        int n = arr.length;
+
+        // Build heap (rearrange array)
+        for (int i = n / 2 - 1; i >= 0; i--)
+            heapify(arr, n, i);
+
+        // One by one extract an element from heap
+        for (int i = n - 1; i >= 0; i--) {
+            // Move current root to end
+            int temp = arr[0];
+            arr[0] = arr[i];
+            arr[i] = temp;
+
+            // call max heapify on the reduced heap
+            heapify(arr, i, 0);
+        }
+    }
+
+    // To heapify a subtree rooted with node i which is
+    // an index in arr[]. n is size of heap
+    void heapify(int[] arr, int n, int i) {
+        int largest = i;  // Initialize largest as root
+        int l = 2 * i + 1;  // left = 2*i + 1
+        int r = 2 * i + 2;  // right = 2*i + 2
+
+        // If left child is larger than root
+        if (l < n && arr[l] > arr[largest])
+            largest = l;
+
+        // If right child is larger than largest so far
+        if (r < n && arr[r] > arr[largest])
+            largest = r;
+
+        // If largest is not root
+        if (largest != i) {
+            int swap = arr[i];
+            arr[i] = arr[largest];
+            arr[largest] = swap;
+
+            // Recursively heapify the affected sub-tree
+            heapify(arr, n, largest);
+        }
+    }
+
+    /* A utility function to print array of size n */
+    static void printArray(int[] arr) {
+        int n = arr.length;
+        for (int i = 0; i < n; ++i)
+            System.out.print(arr[i] + " ");
+        System.out.println();
+    }
+
+    // Driver program
+    public static void main(String args[]) {
+        int arr[] = {12, 11, 13, 5, 6, 7};
+        
+        heap_sort ob = new heap_sort();
+        ob.sort(arr);
+
+        System.out.println("Sorted array is");
+        printArray(arr);
+    }
+}
+
+package Misc;
+
+import java.util.Collections;
+import java.util.PriorityQueue;
+
+
+/**
+ * @author shrutisheoran
+ */
+public class MedianOfRunningArray {
+    private PriorityQueue<Integer> p1;
+    private PriorityQueue<Integer> p2;
+
+    //Constructor
+    public MedianOfRunningArray() {
+        this.p1 = new PriorityQueue<>(Collections.reverseOrder()); //Max Heap
+        this.p2 = new PriorityQueue<>(); //Min Heap
+    }
+
+    /* 
+        Inserting lower half of array to max Heap
+        and upper half to min heap
+    */
+    public void insert(Integer e) {
+        p2.add(e);
+        if (p2.size() - p1.size() > 1)
+            p1.add(p2.remove());
+    }
+
+    /*
+        Returns median at any given point
+    */
+    public Integer median() {
+        if (p1.size() == p2.size())
+            return (p1.peek() + p2.peek()) / 2;
+        return p1.size() > p2.size() ? p1.peek() : p2.peek();
+    }
+
+    public static void main(String[] args) {
+        /*
+            Testing the median function
+        */
+
+        MedianOfRunningArray p = new MedianOfRunningArray();
+        int arr[] = {10, 7, 4, 9, 2, 3, 11, 17, 14};
+        for (int i = 0; i < 9; i++) {
+            p.insert(arr[i]);
+            System.out.print(p.median() + " ");
+        }
+    }
+
+}
+package Misc;
+
+import java.util.Scanner;
+
+public class PalindromePrime {
+
+    public static void main(String[] args) { // Main funtion
+        Scanner in = new Scanner(System.in);
+        System.out.println("Enter the quantity of First Palindromic Primes you want");
+        int n = in.nextInt(); // Input of how many first pallindromic prime we want
+        functioning(n); // calling function - functioning  
+        in.close();
+    }
+
+    public static boolean prime(int num) { // checking if number is prime or not
+        for (int divisor = 3; divisor <= Math.sqrt(num); divisor += 2) {
+            if (num % divisor == 0) {
+                return false; //  false if not prime
+            }
+        }
+        return true; // True if prime
+    }
+
+    public static int reverse(int n) { //  Returns  the reverse of the number
+        int reverse = 0;
+        while (n != 0) {
+            reverse *= 10;
+            reverse += n % 10;
+            n /= 10;
+        }
+        return reverse;
+    }
+
+    public static void functioning(int y) {
+        if (y == 0) return;
+        System.out.print(2 + "\n"); // print the first Palindromic Prime
+        int count = 1;
+        int num = 3;
+        while (count < y) {
+            if (num == reverse(num) && prime(num)) { // number is prime and it's reverse is same
+                count++; // counts check when to terminate while loop
+                System.out.print(num + "\n"); // print the Palindromic Prime
+            }
+            num += 2; // inrease iterator value by two
+        }
+    }
+}
+
