@@ -1,6 +1,6 @@
 import os
 import re
-import fuck
+
 pattern = re.compile(".*?git.*?")
 pattern_txt = re.compile(".*?txt")
 pattern_java = re.compile(".*?java")
